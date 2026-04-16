@@ -245,7 +245,7 @@ After loading the relevant docs:
 
 When the user selects "Full compliance audit" or asks for a compliance check:
 
-**Step A: Run all nf-core lint tools**
+**Step A: Run lint tools and gather pipeline state**
 
 ```bash
 rm -rf ~/.config/nfcore/nf-core/modules/  # clear stale cache (tools ≤3.5.2 bug)
@@ -268,14 +268,86 @@ find ~/.cache/nfcore-docs/sites/docs/src/content/docs/specifications -name "*.md
 
 Read all of them into context.
 
-**Step C: Evaluate compliance at all levels**
+**Step C: Evaluate compliance — parallel agent mode**
 
-For each spec file, extract the MUST/SHOULD/MAY statements and evaluate
-whether the current pipeline satisfies them based on:
-- Lint output from Step A
-- Pipeline file structure, config, and git state
-- Per-module compliance against module spec files
-- Per-subworkflow compliance against subworkflow spec files
+Launch 5 parallel agents, each responsible for one compliance domain.
+Each agent receives the lint output from Step A and the relevant spec
+files from Step B. Each returns findings with severity and confidence.
+
+Before launching agents, ask the user via AskUserQuestion:
+
+> Running parallel compliance audit with 5 agents. Which model?
+>
+> A) Inherit from current session (default)
+> B) Haiku — fast, cheaper, good for quick checks
+> C) Sonnet — balanced, recommended for thorough audits
+> D) Opus — most thorough, highest cost
+
+Use the Agent tool with `subagent_type: "general-purpose"` and set the
+`model` parameter based on the user's choice (omit for option A).
+
+| Agent | Domain | Specs to include | Tool to reference |
+|-------|--------|-----------------|-------------------|
+| 1 | Pipeline requirements | `specifications/pipelines/requirements/*.md` + `specifications/pipelines/recommendations/*.md` | `nf-core pipelines lint` output |
+| 2 | Module compliance | `specifications/components/modules/*.md` | `nf-core modules lint` output |
+| 3 | Subworkflow compliance | `specifications/components/subworkflows/*.md` | `nf-core subworkflows lint` output |
+| 4 | Documentation & metadata | `specifications/pipelines/requirements/documentation.md`, `*/keywords.md`, `*/ro_crate.md` | README, usage.md, output.md file checks |
+| 5 | Git, CI & reviews | `specifications/pipelines/requirements/git_branches.md`, `*/ci_testing.md`, `specifications/reviews/*.md` | git branch state, `.github/workflows/` |
+
+**Agent prompt template** (adapt per agent domain):
+
+```
+You are auditing an nf-core pipeline for compliance. Your domain: {DOMAIN}.
+
+## Specs (read these — they define the rules)
+{SPEC FILE CONTENTS}
+
+## Lint output to cross-reference
+{RELEVANT LINT OUTPUT SECTION}
+
+## Pipeline state
+{RELEVANT FILE LISTINGS, CONFIG EXCERPTS, GIT STATE}
+
+## Instructions
+1. For each spec rule (MUST/SHOULD/MAY), evaluate whether the pipeline complies
+2. Classify each finding:
+   - Severity: Critical (MUST violation), High (SHOULD gap), Medium (MAY), Low (polish)
+   - Confidence: 1-10 (10=verified by lint/code, 5=moderate, 1=speculation)
+3. List positive findings (requirements already met)
+4. Return findings as a structured list, one per line:
+   [SEVERITY] (confidence: N/10) — description | spec: {filename}
+
+Return ALL findings — every single one. Do not summarize, truncate, or
+omit any finding regardless of severity or confidence. No preamble, no
+summary paragraph. Just the structured findings list.
+```
+
+Launch all 5 agents in a single message using multiple Agent tool calls
+so they run in parallel.
+
+**Consolidation** (after all agents return):
+- Collect all findings from all 5 agents
+- Deduplicate: if two agents flag the same spec file with the same status,
+  keep the one with higher confidence
+- Filter: confidence < 4 goes to appendix only (unless Critical severity)
+- Sort: Critical first, then High, then by confidence descending
+- Merge positive findings from all agents into one list
+
+**Save raw agent findings** before consolidation:
+```bash
+mkdir -p .nfcore-docs/reports/agents
+```
+Write each agent's verbatim output to:
+`.nfcore-docs/reports/agents/{date}-agent{N}-{domain}.md`
+
+This preserves the raw findings for:
+- Debugging consolidation issues
+- Comparing agent outputs across runs
+- Verifying no findings were lost during deduplication
+- Re-running consolidation without re-running agents
+
+If any agent fails or returns an error, note which domain was not audited
+and fall back to sequential evaluation for that domain only.
 
 Classify each finding by severity and confidence:
 
@@ -404,6 +476,7 @@ When the user needs to create a new module or subworkflow:
 - Reimplement nf-core tools functionality (lint, create, schema build, rocrate, etc.)
 - Assume spec files are current without checking cache freshness
 - Load the full index/preamble if already loaded earlier in the conversation
+- Summarize, truncate, or omit agent results — present ALL findings from every agent verbatim
 
 ## Persistence
 
