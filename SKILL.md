@@ -158,7 +158,14 @@ If the user's intent is clear from their message (e.g., "load module specs",
 "check CI compliance"), skip the prompt and load the relevant files directly.
 
 If the user's intent is ambiguous (e.g., just `/nfcore-docs` with no context),
-use AskUserQuestion to ask:
+use AskUserQuestion. Follow this structure for ALL AskUserQuestion calls:
+
+1. **Re-ground** — State the pipeline (if detected) and current branch (1 sentence)
+2. **Context** — What's already loaded (index, specs, etc.)
+3. **Recommend** — If one option is clearly best for the context, say so
+4. **Options** — Lettered/numbered list
+
+Ask:
 
 > The nf-core docs index is now loaded (172 pages with section headers).
 > I can navigate any topic from the index. Want me to load the full text
