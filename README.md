@@ -104,6 +104,17 @@ The skill loads only the files relevant to your current task:
 | Git/branch model | `*/requirements/git_branches.md` + `specifications/reviews/*.md` |
 | First release prep | All requirements + recommendations + reviews |
 
+## Accuracy disclaimer
+
+This skill loads nf-core specifications into Claude's context to improve compliance awareness, but AI-generated compliance reports can contain errors:
+
+- Claude may misinterpret MUST/SHOULD/MAY requirements
+- Compliance status for individual requirements may be incorrect
+- The skill may miss violations that require deep code analysis
+- Lint output cross-referencing is heuristic, not deterministic
+
+**Always verify** compliance reports against `nf-core pipelines lint` output and the [original spec text](https://nf-co.re/docs/specifications/overview). The skill is a guide, not a gate. For critical audits (pre-submission to nf-core), have a human review the compliance report.
+
 ## Requirements
 
 - [Claude Code](https://claude.ai/code) CLI

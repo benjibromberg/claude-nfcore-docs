@@ -249,6 +249,12 @@ nf-core modules lint
 nf-core subworkflows lint
 ```
 
+When producing compliance reports, always include this footer:
+
+> *This compliance report is AI-generated and may contain inaccuracies.
+> Verify against `nf-core pipelines lint` and the original specifications
+> at https://nf-co.re/docs/specifications/overview*
+
 **Delegate to nf-core tools** — never reimplement their functionality:
 - Module/subworkflow creation: `nf-core modules create`, `nf-core subworkflows create`
 - Schema work: `nf-core pipelines schema build`
