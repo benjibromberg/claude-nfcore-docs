@@ -136,7 +136,17 @@ This skill loads nf-core specifications into Claude's context to improve complia
 
 ## Tests
 
-See [TESTS.md](TESTS.md) for the full test suite (10 tests covering freshness, loading, compliance, API reference, error handling).
+See [TESTS.md](TESTS.md) for the full test suite (50 tests covering cache management, doc loading, interactive menu, compliance audits, multi-agent review, persistence, and edge cases).
+
+## Acknowledgements
+
+Built with [Claude Code](https://claude.ai/code). Design patterns adapted from:
+
+- **[gstack](https://github.com/garryslist/gstack)** — completion status protocol, AskUserQuestion format, operational self-improvement, context recovery, escalation rules, confidence calibration, trend tracking (from `/review`, `/cso`, `/health`, `/investigate`, `/checkpoint` skills)
+- **[impeccable](https://github.com/nichochar/impeccable)** — severity classification, positive findings, behavioral guardrails (NEVER rules), action mapping (from `/audit` skill)
+- **Anthropic official plugins** — multi-agent parallel review with confidence filtering, references directory pattern (from `code-review`, `claude-code-setup`, `claude-md-management` plugins)
+
+nf-core documentation sourced from [nf-core/website](https://github.com/nf-core/website) via sparse git checkout.
 
 ## License
 
