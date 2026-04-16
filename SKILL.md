@@ -49,14 +49,15 @@ if [ -d "$DOCS_CACHE/.git" ]; then
     git -C "$DOCS_CACHE" pull origin main --depth 1 2>&1
   fi
 else
-  echo "⚠ nf-core docs cache not found at $DOCS_CACHE"
-  echo "Setup:"
-  echo "  mkdir -p $DOCS_CACHE && cd $DOCS_CACHE"
-  echo "  git init && git remote add origin https://github.com/nf-core/website.git"
-  echo "  git config core.sparseCheckout true"
-  echo "  printf 'sites/docs/src/content/docs/\nsites/docs/src/content/api_reference/\n' > .git/info/sparse-checkout"
-  echo "  git pull origin main --depth 1"
-  exit 1
+  echo "⚠ nf-core docs cache not found. Setting up..."
+  mkdir -p "$DOCS_CACHE" && cd "$DOCS_CACHE"
+  git init
+  git remote add origin https://github.com/nf-core/website.git
+  git config core.sparseCheckout true
+  printf 'sites/docs/src/content/docs/\nsites/docs/src/content/api_reference/\n' > .git/info/sparse-checkout
+  git pull origin main --depth 1 2>&1
+  cd - > /dev/null
+  echo "✓ Docs cache created at $DOCS_CACHE"
 fi
 
 # --- Generate index ---
