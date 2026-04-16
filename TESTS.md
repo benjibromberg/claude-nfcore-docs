@@ -3,6 +3,28 @@
 Each test includes a **Prompt** you can paste into a new Claude Code session to run it.
 Most tests require being in an nf-core pipeline directory (e.g., `plantmine/`) unless noted otherwise.
 
+To run a test: `Read /path/to/TESTS.md and run Test N`
+
+## Coverage Map
+
+| Feature | Tests |
+|---------|-------|
+| Cache management (freshness, stale, auto-setup) | 1, 8, 9, 28 |
+| Doc loading (specs, modules, subworkflows, CI, API) | 2, 3, 5, 6, 7, 20, 23, 24 |
+| Interactive menu (options, re-invocation, custom, mixed) | 11, 12, 27, 32, 33 |
+| Full compliance audit (lint, cross-reference, report) | 4, 10, 15, 22, 29, 30, 31 |
+| Severity and confidence scoring | 15, 29 |
+| GitHub issue creation from audit | 16, 26 |
+| Module/subworkflow creation workflow | 14 |
+| NEVER rules enforcement | 18 |
+| Completion status protocol | 17, 25 |
+| Accuracy disclaimer | 19 |
+| Non-pipeline usage | 21 |
+| Compliance score (0-10) | 34, 42 |
+| Persistence — audit reports | 35, 38, 41 |
+| Persistence — operational learnings | 36, 37, 39, 40 |
+| Trend tracking across audits | 38 |
+
 ---
 
 ## Test 1: Freshness check
