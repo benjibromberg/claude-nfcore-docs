@@ -35,7 +35,8 @@ All notable changes to this project will be documented in this file.
 - Tool crash vs compliance failure differentiation
 - `.gitignore` guidance for `.nfcore-docs/` directory
 - Read permission documentation for `~/.cache/nfcore-docs/`
-- CLAUDE.md snippet for pipeline projects (4 lines)
+- Auto-suggest adding `/nfcore-docs` reference to pipeline CLAUDE.md (recommends `/init` if no CLAUDE.md exists)
+- CLAUDE.md reference snippet for pipeline projects (inline in README install step 4)
 - 50-test suite with copy-paste prompts (TESTS.md)
 - README with install instructions (global and local)
 - CONTRIBUTING.md
