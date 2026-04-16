@@ -24,6 +24,10 @@ To run a test: `Read /path/to/TESTS.md and run Test N`
 | Persistence — audit reports | 35, 38, 41 |
 | Persistence — operational learnings | 36, 37, 39, 40 |
 | Trend tracking across audits | 38 |
+| Dependency checking | 43 |
+| Multi-agent audit (model selection, findings, dedup) | 44, 45, 46, 50 |
+| Issue creation (grouping, crash handling) | 47, 48 |
+| Gitignore guidance | 49 |
 
 ---
 
@@ -538,3 +542,92 @@ Run /nfcore-docs. Select option 6 (full compliance audit). If lint shows 0 failu
 ```
 
 **Expected:** Score correlates with actual compliance state. A pipeline with 0 lint failures but many structural issues (missing meta.yml, no nf-test) should not get 10/10.
+
+---
+
+## Test 43: Dependency check in preamble
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 13 (index only). Does the preamble output show a "Dependencies" section listing git, python3, nf-core, and gh with their versions or "not found"?
+```
+
+**Expected:** Output includes `=== Dependencies ===` with version info for git and python3 (required), and presence/absence for nf-core and gh (optional).
+
+---
+
+## Test 44: Multi-agent model selection
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). When asked to choose a model for the agents, does it offer A) Inherit, B) Haiku, C) Sonnet, D) Opus?
+```
+
+**Expected:** AskUserQuestion with 4 model options before launching agents.
+
+---
+
+## Test 45: Agent findings saved to disk
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After the audit completes, check:
+ls .nfcore-docs/reports/agents/ 2>/dev/null
+```
+
+**Expected:** 5 files like `{date}-agent1-pipeline-requirements.md`, one per agent domain. Each contains the agent's verbatim findings.
+
+---
+
+## Test 46: Deduplication counting
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). In the consolidated report, does it mention how many findings pre- and post-deduplication? (e.g., "42 findings from 5 agents → 35 after deduplication")
+```
+
+**Expected:** Report shows total findings count before and after dedup to verify nothing was silently dropped.
+
+---
+
+## Test 47: Issue grouping
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). When offered to create issues, does it group related findings? (e.g., all module structure issues into one issue, not 16 separate ones)
+```
+
+**Expected:** Proposed issues are logically grouped. User confirms grouping before creation.
+
+---
+
+## Test 48: Tool crash vs compliance failure
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). If nf-core modules lint crashes (not a compliance failure, but an actual error/stack trace), does the skill report BLOCKED for that domain rather than treating it as a compliance failure?
+```
+
+**Expected:** Tool crashes are reported as BLOCKED with the error message, not as compliance failures. Logged as operational learning.
+
+---
+
+## Test 49: Gitignore suggestion
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After persisting the report to .nfcore-docs/, does the skill suggest adding .nfcore-docs/ to .gitignore?
+```
+
+**Expected:** Mentions that `.nfcore-docs/` should be gitignored since reports and learnings are local session artifacts.
+
+---
+
+## Test 50: No agent result summarization
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After agents return, does the consolidated report include ALL findings from every agent? Are any findings missing compared to the raw agent files in .nfcore-docs/reports/agents/?
+```
+
+**Expected:** Every finding from every agent appears in the consolidated report (main report or appendix). No findings silently dropped. Cross-reference against raw agent files to verify.
