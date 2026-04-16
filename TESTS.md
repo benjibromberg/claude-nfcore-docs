@@ -145,3 +145,92 @@ Try to trigger a NEVER rule violation:
 Run any compliance check or audit.
 
 **Expected:** Report footer includes: "This compliance report is AI-generated and may contain inaccuracies. Verify against nf-core pipelines lint and the original specifications."
+
+## Test 20: Index covers all doc categories
+
+After running the preamble, check that the index includes files from every category.
+
+**Expected:** Index output contains entries from: community, contributing, developing, get_started, nf-core-tools, running, specifications. Also shows API reference summary with version directories.
+
+## Test 21: Non-pipeline directory
+
+Run `/nfcore-docs` from a directory that is NOT an nf-core pipeline (e.g., home directory).
+
+**Expected:** Preamble completes without errors. Pipeline context section is skipped (no "Current Pipeline" output). Index still generates. Skill remains usable for browsing docs without a pipeline.
+
+## Test 22: Lint cache bug workaround
+
+Run a full compliance audit and verify the nf-core tools module cache is cleared.
+
+**Expected:** The `rm -rf ~/.config/nfcore/nf-core/modules/` command runs before `nf-core pipelines lint`. Lint does not crash with "Branch 'master' not found."
+
+## Test 23: Load all specs context cost
+
+Select option 11 ("Load all specs") and check `/context` afterwards.
+
+**Expected:** ~60K tokens consumed by spec files (~6% of 1M). Verify the number is in the ballpark — if wildly different, the context budget table in Step 2 needs updating.
+
+## Test 24: Load all docs context cost
+
+Select option 12 ("Load all docs") and check `/context` afterwards.
+
+**Expected:** ~275K tokens consumed total (~28% of 1M). Same verification as test 23.
+
+## Test 25: Escalation after repeated failure
+
+Simulate a failing nf-core tool (e.g., by temporarily renaming `nf-core` binary).
+
+**Expected:** After failing to run lint, the skill should not retry indefinitely. Should report BLOCKED status with what was attempted and what the user should do.
+
+## Test 26: Duplicate issue detection
+
+Create a GitHub issue titled "chore(compliance): Docker Support" manually, then run an audit that finds a Docker compliance gap.
+
+**Expected:** Skill detects the existing issue via `gh issue list --search` and asks whether to skip or create a new one, rather than creating a duplicate.
+
+## Test 27: Custom file request (option 14)
+
+Select option 14 ("Something else") and ask for a specific doc page by name.
+
+**Expected:** Skill uses the index to find the file path and reads it. Works for both spec files and non-spec files (e.g., "show me the release procedure docs").
+
+## Test 28: Stale cache update preserves structure
+
+Backdate FETCH_HEAD, run the skill, and verify the update doesn't break the index.
+
+**Expected:** `git pull` runs, FETCH_HEAD timestamp updates, index regenerates with current file list. No orphaned files from previous versions.
+
+## Test 29: Severity mapping accuracy
+
+Load a spec file that contains MUST, SHOULD, and MAY statements. Run an audit.
+
+**Expected:**
+- MUST violations → Critical severity
+- SHOULD gaps → High severity
+- MAY suggestions → Medium severity
+- Lint warnings without spec mapping → Low severity
+- No severity level is skipped or misapplied
+
+## Test 30: Positive findings completeness
+
+Run a full audit on a pipeline that passes some requirements.
+
+**Expected:** Positive findings section lists specific requirements that ARE met (not just "some requirements met"). Each positive finding references the spec file it corresponds to.
+
+## Test 31: Action mapping specificity
+
+Run a full audit with findings.
+
+**Expected:** Each finding in the "Recommended Next Actions" table maps to a specific `nf-core` command, not generic advice. Commands should be copy-pasteable.
+
+## Test 32: Mixed intent detection
+
+Say: "I need help with module migration and also want to check CI."
+
+**Expected:** Skill loads both `specifications/components/modules/*.md` AND `specifications/pipelines/requirements/ci_testing.md`. Runs both `nf-core modules lint` and checks `.github/workflows/`. Does not force user to pick just one option.
+
+## Test 33: Index-only mode
+
+Select option 13 ("Just use the index").
+
+**Expected:** No additional files are read. Skill confirms the index is available and waits for specific questions. Can answer "what docs exist about testing?" from the index alone without loading any spec files.
