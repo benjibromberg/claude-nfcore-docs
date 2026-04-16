@@ -56,7 +56,7 @@ Then re-run `/nfcore-docs`.
 
 **Expected:** Reports ">24h ago" and triggers `git pull`.
 
-## Test 9: Missing cache
+## Test 9: Missing cache auto-setup
 
 Temporarily rename the cache and run the skill:
 
@@ -64,14 +64,84 @@ Temporarily rename the cache and run the skill:
 mv ~/.cache/nfcore-docs ~/.cache/nfcore-docs-backup
 ```
 
-**Expected:** Shows setup instructions with copy-pasteable commands. Restore with:
+**Expected:** Automatically creates the cache via sparse git checkout (not just instructions). Verify with `ls ~/.cache/nfcore-docs/sites/docs/`. Restore backup after:
 
 ```bash
-mv ~/.cache/nfcore-docs-backup ~/.cache/nfcore-docs
+rm -rf ~/.cache/nfcore-docs && mv ~/.cache/nfcore-docs-backup ~/.cache/nfcore-docs
 ```
 
 ## Test 10: Full compliance audit
 
-Ask: "Load ALL pipeline requirements and recommendations for a full compliance audit."
+Ask: "Run a full compliance audit of this pipeline."
 
-**Expected:** Reads all ~28 pipeline spec files, counts MUST/SHOULD/MAY statements, and reports compliance status against the current pipeline.
+**Expected:**
+- Runs `nf-core pipelines lint`, `nf-core modules lint`, `nf-core subworkflows lint`
+- Checks for `ro-crate-metadata.json`
+- Reads all spec files under `specifications/` recursively (not a hardcoded list)
+- Produces a report with severity summary (`Critical: N | High: N | Medium: N | Low: N`)
+- Includes a positive findings section
+- Includes a recommended next actions table
+- Ends with the accuracy disclaimer footer
+
+## Test 11: Interactive menu
+
+Invoke `/nfcore-docs` with no additional context.
+
+**Expected:** Shows AskUserQuestion with 14 options, context budget table, and note that the index is already loaded. Should follow re-ground/context/recommend/options structure.
+
+## Test 12: Session re-invocation
+
+Invoke `/nfcore-docs` twice in the same session.
+
+**Expected:** Second invocation skips the preamble (no freshness check, no index regeneration). Goes directly to Step 2 asking what else to load.
+
+## Test 13: Targeted module check
+
+Ask: "Check module compliance for this pipeline."
+
+**Expected:** Loads `specifications/components/modules/*.md`, runs `nf-core modules lint`, cross-references output against loaded module specs.
+
+## Test 14: Module creation workflow
+
+Ask: "I need to create a new module for a tool called mytool."
+
+**Expected:**
+1. Checks `nf-core modules list remote` for existing module
+2. Suggests `nf-core modules create --empty-template` if not found
+3. Loads module specs into context
+4. Offers to guide through completing the skeleton
+
+## Test 15: Severity and confidence in audit
+
+Run a full compliance audit and check findings format.
+
+**Expected:** Each finding includes:
+- Severity: Critical/High/Medium/Low
+- Confidence: N/10 with appropriate display rules
+- Findings with confidence < 4 are excluded from main report or flagged
+
+## Test 16: Issue creation from audit
+
+After a compliance audit, confirm the skill offers to create GitHub issues.
+
+**Expected:** AskUserQuestion: "Found X compliance gaps. Want me to create GitHub issues?" with yes/no/selective options. If yes, checks for existing issues before creating duplicates.
+
+## Test 17: Completion status
+
+After any skill workflow completes, check the final output.
+
+**Expected:** Ends with one of: DONE, DONE_WITH_CONCERNS, BLOCKED, or NEEDS_CONTEXT.
+
+## Test 18: NEVER rules enforcement
+
+Try to trigger a NEVER rule violation:
+- Ask to "summarize lint output" (should NOT pipe through grep/head/tail)
+- Ask for compliance without running lint (should refuse)
+
+**Expected:** Skill follows NEVER rules — runs lint with full output, doesn't guess at compliance.
+
+## Test 19: Accuracy disclaimer
+
+Run any compliance check or audit.
+
+**Expected:** Report footer includes: "This compliance report is AI-generated and may contain inaccuracies. Verify against nf-core pipelines lint and the original specifications."
