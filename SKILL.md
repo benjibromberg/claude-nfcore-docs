@@ -316,8 +316,21 @@ For non-audit work, run only the relevant nf-core tools and load only the
 relevant spec files — not the full `specifications/` tree.
 
 **Delegate to nf-core tools** — never reimplement their functionality:
-- Module/subworkflow creation: `nf-core modules create`, `nf-core subworkflows create`
 - Schema work: `nf-core pipelines schema build`
 - RO-Crate: `nf-core pipelines rocrate`
 - Module updates: `nf-core modules update`
 - Finding existing modules: `nf-core modules list remote`
+
+### Creating new modules or subworkflows
+
+When the user needs to create a new module or subworkflow:
+
+1. Check if an nf-core module already exists: `nf-core modules list remote`
+2. If it exists, install it: `nf-core modules install <name>`
+3. If not, generate a compliant skeleton:
+   - `nf-core modules create --empty-template`
+   - `nf-core subworkflows create --empty-template`
+4. Load the relevant specs into context (selection 1 for modules, 2 for subworkflows)
+5. Review the generated skeleton against the loaded specs
+6. Guide the user through completing it with spec-compliant code
+7. Run `nf-core modules lint` or `nf-core subworkflows lint` to verify
