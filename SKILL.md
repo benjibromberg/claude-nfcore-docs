@@ -270,17 +270,33 @@ whether the current pipeline satisfies them based on:
 - Per-module compliance against module spec files
 - Per-subworkflow compliance against subworkflow spec files
 
+Classify each finding by severity based on the spec language:
+- **Critical** — MUST / MUST NOT violation (blocks nf-core acceptance)
+- **High** — SHOULD / SHOULD NOT gap (strongly recommended)
+- **Medium** — MAY suggestion or quality improvement
+- **Low** — Minor polish (TODOs, version warnings, formatting)
+
 **Step D: Produce the compliance report**
 
 Build the report dynamically from the spec files read in Step B. Group by
 directory (pipelines/requirements, pipelines/recommendations, components/modules,
 components/subworkflows, reviews, test-data). Each row is one spec file:
 - Title (from frontmatter)
+- Severity (Critical/High/Medium/Low)
 - Status (✓/✗/N/A)
 - Notes (specific findings, lint references, what's missing)
 - Spec file path (so the user can read the full text)
 
+Start with a severity summary: `Critical: N | High: N | Medium: N | Low: N`
+
+Include a **positive findings** section noting what's already compliant —
+good patterns, exemplary modules, requirements already met. This helps users
+know what NOT to change and identifies patterns to replicate.
+
 Include per-module and per-subworkflow tables when relevant.
+
+End with a **recommended next actions** table mapping each finding to the
+specific nf-core tool or command that fixes it.
 
 End with summary counts and this footer:
 
@@ -336,3 +352,33 @@ When the user needs to create a new module or subworkflow:
 5. Review the generated skeleton against the loaded specs
 6. Guide the user through completing it with spec-compliant code
 7. Run `nf-core modules lint` or `nf-core subworkflows lint` to verify
+
+## Rules
+
+**NEVER:**
+- Report compliance without running the actual nf-core lint tools first
+- Hardcode a list of requirements — always derive from cached spec files
+- Truncate or filter lint/tool output (no head/tail/grep on diagnostics)
+- Guess at compliance status — if uncertain, say so explicitly
+- Skip the accuracy disclaimer on compliance reports
+- Create GitHub issues without checking for existing duplicates
+- Reimplement nf-core tools functionality (lint, create, schema build, rocrate, etc.)
+- Assume spec files are current without checking cache freshness
+- Load the full index/preamble if already loaded earlier in the conversation
+
+## Completion
+
+End every skill invocation with a status:
+
+- **DONE** — All steps completed. Summarize what was loaded/checked.
+- **DONE_WITH_CONCERNS** — Completed, but with issues to flag (e.g., stale cache, lint failures, uncertain findings).
+- **BLOCKED** — Cannot proceed. State what's blocking and what was tried.
+- **NEEDS_CONTEXT** — Missing information. State exactly what's needed.
+
+If blocked or uncertain after 3 attempts at a step, stop and escalate:
+```
+STATUS: BLOCKED | NEEDS_CONTEXT
+REASON: [1-2 sentences]
+ATTEMPTED: [what was tried]
+RECOMMENDATION: [what the user should do next]
+```
