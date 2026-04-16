@@ -332,6 +332,11 @@ Common mappings:
 - Module version updates → `nf-core modules update`
 - Local module exists upstream → `nf-core modules install {name}`
 
+Compute a **compliance score** (0-10) based on the ratio of passing to total
+requirements across all categories (pipeline lint, module compliance, subworkflow
+compliance, MUST requirements, SHOULD recommendations). Present as:
+`nf-core Compliance Score: X.X/10` with per-category breakdown.
+
 End with summary counts and this footer:
 
 > *This compliance report is AI-generated and may contain inaccuracies.
