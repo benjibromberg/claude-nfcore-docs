@@ -1,5 +1,6 @@
 """Shared constants and helpers for nfcore-docs tests."""
 
+import json
 import os
 import re
 
@@ -18,6 +19,33 @@ SPEC_ROOT = os.path.join(DOCS_ROOT, "specifications")
 API_ROOT = os.path.join(CACHE_DIR, "sites/docs/src/content/api_reference")
 
 CACHE_EXISTS = os.path.isdir(CACHE_DIR)
+
+# --- Pipeline fixtures ---
+FIXTURES_DIR = os.path.join(SKILL_DIR, "tests", "fixtures")
+FIXTURES_JSON = os.path.join(FIXTURES_DIR, "pipelines.json")
+
+
+def load_fixture_config():
+    """Load pipeline fixture definitions from pipelines.json."""
+    with open(FIXTURES_JSON) as f:
+        return json.load(f)
+
+
+def get_fixture_path(name):
+    """Get the path to a pipeline fixture. Returns None if not cloned."""
+    path = os.path.join(FIXTURES_DIR, name)
+    if os.path.isdir(path) and os.path.isfile(os.path.join(path, "nextflow.config")):
+        return path
+    return None
+
+
+def fixture_available(name):
+    """Check if a pipeline fixture is cloned and ready."""
+    return get_fixture_path(name) is not None
+
+
+# The smallest fixture — used as default for E2E tests
+DEFAULT_FIXTURE = "fetchngs"
 
 
 # --- Helpers ---

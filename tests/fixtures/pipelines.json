@@ -1,0 +1,20 @@
+{
+  "fetchngs": {
+    "repo": "nf-core/fetchngs",
+    "tag": "1.12.0",
+    "template_era": "pre-3.0",
+    "description": "Small pipeline (4 nf-core + 6 local modules). Legacy template — no nf-schema, no RO-Crate. Tests skill against pre-3.0 conventions."
+  },
+  "funcscan": {
+    "repo": "nf-core/funcscan",
+    "tag": "3.0.0",
+    "template_era": "3.3.x",
+    "description": "Medium pipeline (42 nf-core + 6 local modules). Template 3.3.2 — has RO-Crate and nf-schema, but flat local modules and no topic versions."
+  },
+  "rnaseq": {
+    "repo": "nf-core/rnaseq",
+    "tag": "3.24.0",
+    "template_era": "3.5.x",
+    "description": "Large pipeline (71 nf-core + 5 local + 25 subworkflows). Template 3.5.2 — current gold standard with topic-based versions."
+  }
+}
