@@ -81,6 +81,22 @@ else
   echo "✓ Docs cache created at $DOCS_CACHE"
 fi
 
+# --- Check dependencies ---
+echo ""
+echo "=== Dependencies ==="
+command -v git >/dev/null 2>&1 && echo "git: $(git --version | head -1)" || echo "git: NOT FOUND (required for cache)"
+command -v python3 >/dev/null 2>&1 && echo "python3: $(python3 --version 2>&1)" || echo "python3: NOT FOUND (required for index)"
+command -v nf-core >/dev/null 2>&1 && echo "nf-core: $(nf-core --version 2>&1 | grep -o '[0-9.]*' | head -1)" || echo "nf-core: not found (optional — needed for lint/compliance checks)"
+command -v gh >/dev/null 2>&1 && echo "gh: $(gh --version 2>&1 | head -1)" || echo "gh: not found (optional — needed for issue creation)"
+
+# --- Prior learnings ---
+if [ -f .nfcore-docs/learnings.jsonl ]; then
+  echo ""
+  echo "=== Prior Learnings ==="
+  echo "LEARNINGS: $(wc -l < .nfcore-docs/learnings.jsonl | tr -d ' ') entries"
+  cat .nfcore-docs/learnings.jsonl
+fi
+
 # --- Generate index ---
 CONTENT_ROOT="$DOCS_CACHE/sites/docs/src/content"
 API_ROOT="$CONTENT_ROOT/api_reference"
@@ -266,7 +282,9 @@ when nf-core adds, moves, or renames spec files.
 find ~/.cache/nfcore-docs/sites/docs/src/content/docs/specifications -name "*.md" | sort
 ```
 
-Read all of them into context.
+Use the Read tool to read each file sequentially into context. For large
+file sets (56 files), read them in batches — the content stays in the
+conversation history for the agents to reference.
 
 **Step C: Evaluate compliance — parallel agent mode**
 
@@ -310,28 +328,40 @@ You are auditing an nf-core pipeline for compliance. Your domain: {DOMAIN}.
 
 ## Instructions
 1. For each spec rule (MUST/SHOULD/MAY), evaluate whether the pipeline complies
-2. Classify each finding:
-   - Severity: Critical (MUST violation), High (SHOULD gap), Medium (MAY), Low (polish)
-   - Confidence: 1-10 (10=verified by lint/code, 5=moderate, 1=speculation)
-3. List positive findings (requirements already met)
-4. Return findings as a structured list, one per line:
+2. Classify each finding by severity (from the spec language):
+   - Critical: MUST / MUST NOT violation (blocks nf-core acceptance)
+   - High: SHOULD / SHOULD NOT gap (strongly recommended)
+   - Medium: MAY suggestion or quality improvement
+   - Low: Minor polish (TODOs, version warnings, formatting)
+3. Rate your confidence in each finding (1-10):
+   - 9-10: Verified by lint output or reading specific code
+   - 7-8: High confidence pattern match against spec
+   - 5-6: Moderate — could be misinterpreting spec, add a caveat
+   - 3-4: Low — flag for manual review
+   - 1-2: Speculation — only include for Critical or High severity
+4. List positive findings (requirements already met) with ✓
+5. Return findings as a structured list, one per line:
    [SEVERITY] (confidence: N/10) — description | spec: {filename}
+   Then positive findings as: ✓ description | spec: {filename}
 
-Return ALL findings — every single one. Do not summarize, truncate, or
-omit any finding regardless of severity or confidence. No preamble, no
-summary paragraph. Just the structured findings list.
+CRITICAL: Return ALL findings — every single one. Do not summarize,
+truncate, or omit any finding regardless of severity or confidence.
+No preamble, no summary paragraph. Just the structured findings list
+followed by positive findings.
 ```
 
 Launch all 5 agents in a single message using multiple Agent tool calls
 so they run in parallel.
 
 **Consolidation** (after all agents return):
-- Collect all findings from all 5 agents
-- Deduplicate: if two agents flag the same spec file with the same status,
-  keep the one with higher confidence
+- Collect all findings from all 5 agents verbatim — do NOT summarize
+- Deduplicate: two findings are duplicates if they reference the same spec
+  filename AND the same severity level. Keep the one with higher confidence.
+  If confidence is equal, keep both (independent assessments are valuable)
 - Filter: confidence < 4 goes to appendix only (unless Critical severity)
 - Sort: Critical first, then High, then by confidence descending
-- Merge positive findings from all agents into one list
+- Merge positive findings from all agents into one deduplicated list
+- Count total findings pre- and post-deduplication to verify nothing was lost
 
 **Save raw agent findings** before consolidation:
 ```bash
@@ -348,21 +378,6 @@ This preserves the raw findings for:
 
 If any agent fails or returns an error, note which domain was not audited
 and fall back to sequential evaluation for that domain only.
-
-Classify each finding by severity and confidence:
-
-**Severity** (from spec language):
-- **Critical** — MUST / MUST NOT violation (blocks nf-core acceptance)
-- **High** — SHOULD / SHOULD NOT gap (strongly recommended)
-- **Medium** — MAY suggestion or quality improvement
-- **Low** — Minor polish (TODOs, version warnings, formatting)
-
-**Confidence** (1-10):
-- 9-10: Verified by lint output or reading specific code. Show normally.
-- 7-8: High confidence pattern match against spec. Show normally.
-- 5-6: Moderate — could be misinterpreting spec. Show with caveat.
-- 3-4: Low — flag for manual review, don't include in main report.
-- 1-2: Speculation — only report for Critical or High severity items.
 
 **Step D: Produce the compliance report**
 
@@ -437,7 +452,20 @@ If yes or selective:
    the label exists on the repo (check with `gh label list` first, or skip the
    label flag to avoid errors).
 
+Group related findings into logical issues rather than one-per-finding
+(e.g., all module structure findings → one module migration issue). Present
+the proposed grouping to the user before creating. Use `gh issue create`
+directly (not the pipeline's YAML issue templates, which are for bugs and
+feature requests — compliance issues are a different category).
+
 This prevents duplicate issues when running audits repeatedly.
+
+**`.nfcore-docs/` directory:** Suggest adding to `.gitignore` — reports
+and learnings are local session artifacts, not shared project data.
+
+**Tool crashes vs compliance failures:** If a lint tool crashes (stack trace,
+not a lint failure), report BLOCKED for that domain. Do not treat crashes as
+compliance failures. Log as an operational learning.
 
 ### For other tasks
 
