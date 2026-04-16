@@ -199,24 +199,24 @@ Base paths:
 - Docs: `~/.cache/nfcore-docs/sites/docs/src/content/docs/`
 - API: `~/.cache/nfcore-docs/sites/docs/src/content/api_reference/`
 
-**File mapping:**
+**File mapping and nf-core tools to run:**
 
-| Selection | Files to Read |
-|-----------|---------------|
-| 1. Module migration | `specifications/components/modules/*.md` (9 files) |
-| 2. Subworkflow work | `specifications/components/subworkflows/*.md` (7 files) |
-| 3. nf-test coverage | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md` |
-| 4. Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` |
-| 5. CI setup | `*/requirements/ci_testing.md` |
-| 6. Full compliance audit | `specifications/pipelines/requirements/*.md` + `specifications/pipelines/recommendations/*.md` |
-| 7. Documentation | `*/requirements/documentation.md` + `*/modules/documentation.md` + `*/subworkflows/documentation.md` |
-| 8. Git/branch model | `*/requirements/git_branches.md` + `specifications/reviews/*.md` |
-| 9. First release | All pipeline requirements + recommendations + reviews |
-| 10. CLI reference | `nf-core-tools/*.md` |
-| 11. All specs | All files under `specifications/` (56 files) |
-| 12. All docs | All files under the docs root (172 files) |
-| 13. Index only | No additional files — use index to answer questions or load specific files on demand |
-| 14. Custom | Use Grep on the index output to find relevant files |
+| Selection | Spec files to Read | nf-core tool to run |
+|-----------|-------------------|---------------------|
+| 1. Module migration | `specifications/components/modules/*.md` | `nf-core modules lint` |
+| 2. Subworkflow work | `specifications/components/subworkflows/*.md` | `nf-core subworkflows lint` |
+| 3. nf-test coverage | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md` | `nf-core modules test`, `nf-core subworkflows test` |
+| 4. Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` | `nf-core pipelines lint` |
+| 5. CI setup | `*/requirements/ci_testing.md` | (check `.github/workflows/`) |
+| 6. Full compliance audit | All `specifications/**/*.md` recursively | All: `pipelines lint` + `modules lint` + `subworkflows lint` + RO-Crate check |
+| 7. Documentation | `*/requirements/documentation.md` + `*/modules/documentation.md` + `*/subworkflows/documentation.md` | `nf-core pipelines lint` (docs checks) |
+| 8. Git/branch model | `*/requirements/git_branches.md` + `specifications/reviews/*.md` | (check git branches) |
+| 9. First release | All pipeline requirements + recommendations + reviews | All: `pipelines lint` + `modules lint` + `subworkflows lint` |
+| 10. CLI reference | `nf-core-tools/*.md` | (reference only) |
+| 11. All specs | All `specifications/**/*.md` | (depends on task) |
+| 12. All docs | All files under docs root | (depends on task) |
+| 13. Index only | None — use index to navigate | None |
+| 14. Custom | Use Grep on index output | (depends on task) |
 
 For API reference lookups, use Glob:
 `~/.cache/nfcore-docs/sites/docs/src/content/api_reference/{version}/`
