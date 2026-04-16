@@ -403,3 +403,116 @@ Run /nfcore-docs. Select option 13 (just use the index). Then ask: "What docs ex
 ```
 
 **Expected:** No additional files are read. Answers from the index by listing testing-related entries (module testing, subworkflow testing, pipeline testing recommendation, test data specs).
+
+---
+
+## Test 34: Compliance score
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). Does the report include a compliance score (0-10) with per-category breakdown?
+```
+
+**Expected:** Report includes `nf-core Compliance Score: X.X/10` with breakdown across pipeline lint, module compliance, subworkflow compliance, MUST requirements, and SHOULD recommendations.
+
+---
+
+## Test 35: Audit report persistence
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After the report, check: was it saved to .nfcore-docs/reports/?
+ls .nfcore-docs/reports/ 2>/dev/null
+```
+
+**Expected:** A file like `.nfcore-docs/reports/{date}-compliance.md` exists containing the full report.
+
+---
+
+## Test 36: Operational learning logged
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After the audit, does the skill reflect on what happened and log any learnings? Check:
+cat .nfcore-docs/learnings.jsonl 2>/dev/null
+```
+
+**Expected:** If a genuine discovery was made (e.g., unexpected lint behavior, spec interpretation), a JSONL entry with `ts`, `context`, `insight`, and `confidence` fields is appended.
+
+---
+
+## Test 37: Prior learnings loaded on start
+
+**Prompt:**
+```
+First, manually create a test learning:
+mkdir -p .nfcore-docs && echo '{"ts":"2026-04-16","context":"testing","insight":"nf-core tools 3.5.2 cache bug requires rm -rf before lint","confidence":"high"}' > .nfcore-docs/learnings.jsonl
+
+Then run /nfcore-docs. Does the preamble show the prior learning?
+Clean up: rm -rf .nfcore-docs/learnings.jsonl
+```
+
+**Expected:** Preamble output includes `LEARNINGS: 1 entries` and displays the learning content.
+
+---
+
+## Test 38: Trend tracking across audits
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit) and complete it.
+Then run /nfcore-docs again. Select option 6 again for a second audit.
+Does the second audit compare against the first and show a trend?
+```
+
+**Expected:** Second audit mentions the previous report, summarizes resolved/persistent/new findings, and reports trend (improving/degrading/stable).
+
+---
+
+## Test 39: Learnings have correct fields
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After completion, check:
+cat .nfcore-docs/learnings.jsonl 2>/dev/null | python3 -c "import json,sys; [print(sorted(json.loads(l).keys())) for l in sys.stdin]"
+```
+
+**Expected:** Each learning entry has exactly these fields: `confidence`, `context`, `insight`, `ts`. No missing fields.
+
+---
+
+## Test 40: Empty learnings file handled gracefully
+
+**Prompt:**
+```
+mkdir -p .nfcore-docs && touch .nfcore-docs/learnings.jsonl
+Run /nfcore-docs. Select option 13 (index only). Does the preamble handle an empty learnings file without errors?
+Clean up: rm .nfcore-docs/learnings.jsonl
+```
+
+**Expected:** Shows `LEARNINGS: 0 entries` or similar. No errors from empty file.
+
+---
+
+## Test 41: No report directory yet
+
+**Prompt:**
+```
+Make sure .nfcore-docs/reports/ does not exist:
+rm -rf .nfcore-docs/reports/
+
+Run /nfcore-docs. Select option 6 (full compliance audit). Does it create the directory and save the report?
+```
+
+**Expected:** Creates `.nfcore-docs/reports/` directory and saves the report file. No errors about missing directory.
+
+---
+
+## Test 42: Compliance score reflects actual state
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). If lint shows 0 failures, does the compliance score reflect that (high score)? If there are many warnings, is the score lower than 10?
+```
+
+**Expected:** Score correlates with actual compliance state. A pipeline with 0 lint failures but many structural issues (missing meta.yml, no nf-test) should not get 10/10.
