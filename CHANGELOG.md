@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-04-16
+
+### Added
+
+- Automated test infrastructure: `test.sh` runner with two tiers
+  - Tier 1: 69 static pytest tests (frontmatter, structure, cross-file consistency,
+    bash preamble, python index, cache validation) — no LLM, runs in <1s
+  - Tier 2: 6 E2E tests via `claude -p` with NDJSON parsing — uses Max subscription
+- 6 new manual tests in TESTS.md (Tests 51-56) for v1.0.1 guardrails
+
+### Fixed
+
+- AskUserQuestion tool enforcement: added explicit MUST callouts at all 3 interactive
+  checkpoints (CLAUDE_MD_REF, model selection, issue creation) — plain text output no
+  longer satisfies these requirements
+- Raw agent report saving: moved save instructions BEFORE consolidation as a blocking
+  prerequisite with all 5 filenames listed explicitly
+- Report format: clarified primary organization is by spec directory (not severity),
+  added example table showing the expected per-spec-file row format
+- Consolidation wording: "verbatim" means preserve finding text — reorganizing is
+  allowed, paraphrasing individual findings is not
+- Dedup checkpoint: consolidation must report pre- and post-dedup counts in report header
+- Low-confidence appendix: confidence < 4 findings go to a named appendix section
+- Tool crash handling: replaced binary BLOCKED with 4-step flow (workaround → use
+  output → note crash → log learning)
+- Completion status: DONE_WITH_CONCERNS now explicitly covers any tool crash, even if
+  worked around
+- Model selection: added MAY skip clause when user pre-specifies model in their message
+
 ## [1.0.0] - 2026-04-16
 
 ### Added

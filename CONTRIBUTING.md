@@ -27,14 +27,14 @@ changes are live immediately.
 
 ## Testing
 
-50 tests in [TESTS.md](TESTS.md). Each has a copy-paste prompt for manual testing.
+56 tests in [TESTS.md](TESTS.md). Each has a copy-paste prompt for manual testing.
 
 ```
 # In a Claude Code session from an nf-core pipeline directory:
 Read /path/to/claude-nfcore-docs/TESTS.md and run Test N
 ```
 
-Run the full test suite by working through all 50 tests. Priority tests for
+Run the full test suite by working through all 56 tests. Priority tests for
 quick validation: 1 (freshness), 10 (full audit), 11 (interactive menu),
 18 (NEVER rules), 43 (dependencies).
 

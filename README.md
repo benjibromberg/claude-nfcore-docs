@@ -93,7 +93,7 @@ Add this to your nf-core pipeline's CLAUDE.md so Claude always knows the skill i
 
 Then tell Claude what you need:
 - "Load the module specs for migration work"
-- "Check plantmine's compliance against all pipeline requirements"
+- "Run a full compliance audit against all pipeline requirements"
 - "What does the git branches spec say?"
 - "Find the API reference for nf-core tools 3.5.2"
 
@@ -149,7 +149,7 @@ This skill loads nf-core specifications into Claude's context to improve complia
 
 ## Tests
 
-See [TESTS.md](TESTS.md) for the full test suite (50 tests covering cache management, doc loading, interactive menu, compliance audits, multi-agent review, persistence, and edge cases).
+See [TESTS.md](TESTS.md) for the full test suite (56 tests covering cache management, doc loading, interactive menu, compliance audits, multi-agent review, persistence, and edge cases).
 
 ## Acknowledgements
 

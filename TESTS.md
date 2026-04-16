@@ -1,9 +1,11 @@
 # Test Suite
 
 Each test includes a **Prompt** you can paste into a new Claude Code session to run it.
-Most tests require being in an nf-core pipeline directory (e.g., `plantmine/`) unless noted otherwise.
+Most tests require being in an nf-core pipeline directory unless noted otherwise.
 
 To run a test: `Read /path/to/TESTS.md and run Test N`
+
+56 tests total. Tests 51-56 added in v1.0.1 for audit execution guardrails.
 
 ## Coverage Map
 
@@ -12,7 +14,7 @@ To run a test: `Read /path/to/TESTS.md and run Test N`
 | Cache management (freshness, stale, auto-setup) | 1, 8, 9, 28 |
 | Doc loading (specs, modules, subworkflows, CI, API) | 2, 3, 5, 6, 7, 20, 23, 24 |
 | Interactive menu (options, re-invocation, custom, mixed) | 11, 12, 27, 32, 33 |
-| Full compliance audit (lint, cross-reference, report) | 4, 10, 15, 22, 29, 30, 31 |
+| Full compliance audit (lint, cross-reference, report) | 4, 10, 13, 15, 22, 29, 30, 31 |
 | Severity and confidence scoring | 15, 29 |
 | GitHub issue creation from audit | 16, 26 |
 | Module/subworkflow creation workflow | 14 |
@@ -28,6 +30,10 @@ To run a test: `Read /path/to/TESTS.md and run Test N`
 | Multi-agent audit (model selection, findings, dedup) | 44, 45, 46, 50 |
 | Issue creation (grouping, crash handling) | 47, 48 |
 | Gitignore guidance | 49 |
+| AskUserQuestion tool enforcement | 51, 52, 53 |
+| Agent report save ordering | 54 |
+| Report format (spec-directory grouping) | 55 |
+| Tool crash workaround flow | 56 |
 
 ---
 
@@ -631,3 +637,70 @@ Run /nfcore-docs. Select option 6 (full compliance audit). After agents return, 
 ```
 
 **Expected:** Every finding from every agent appears in the consolidated report (main report or appendix). No findings silently dropped. Cross-reference against raw agent files to verify.
+
+---
+
+## Test 51: CLAUDE_MD_REF uses AskUserQuestion tool
+
+**Prompt:**
+```
+Run /nfcore-docs. The preamble will report CLAUDE_MD_REF status. If it reports "missing", does the skill use the AskUserQuestion TOOL (not plain text) to ask about adding a reference?
+```
+
+**Expected:** If CLAUDE_MD_REF is `missing`, skill uses the AskUserQuestion tool with options for adding a reference to CLAUDE.md vs declining. Does NOT output the question as plain text. Does NOT silently skip the step.
+
+---
+
+## Test 52: Model selection uses AskUserQuestion tool
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). When the model selection question appears, verify it uses the AskUserQuestion TOOL (not plain text output). Select "Inherit from current session."
+```
+
+**Expected:** AskUserQuestion tool is used with 4 model options (Inherit/Haiku/Sonnet/Opus). Not presented as plain text in the conversation.
+
+---
+
+## Test 53: Issue creation uses AskUserQuestion tool
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After the report, verify the issue creation offer uses the AskUserQuestion TOOL (not plain text).
+```
+
+**Expected:** AskUserQuestion tool with options for yes/no/selective issue creation. Not presented as inline text.
+
+---
+
+## Test 54: Agent reports saved BEFORE consolidation
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After agents return, check: are all 5 raw agent files written to .nfcore-docs/reports/agents/ BEFORE the consolidated report appears?
+ls .nfcore-docs/reports/agents/
+```
+
+**Expected:** All 5 files exist with names matching `{date}-agent{N}-{domain}.md`. Files are written immediately after agents return, before any consolidation text appears. Each file contains the agent's complete verbatim output.
+
+---
+
+## Test 55: Report organized by spec directory
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). In the compliance report, is the PRIMARY organization by spec directory (pipelines/requirements, components/modules, etc.) or by severity level (Critical, High, Medium, Low)?
+```
+
+**Expected:** Report sections are grouped by spec directory (e.g., "Pipeline Requirements", "Module Compliance", "Subworkflow Compliance"). Each section contains a table where each row is one spec file with columns for Title, Status, Severity, Confidence, and Notes. Severity is a column within the table, NOT the top-level grouping.
+
+---
+
+## Test 56: Tool crash workaround flow
+
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). If nf-core modules lint crashes with a TUI error, does the skill: (1) attempt a workaround, (2) note the crash in the report, (3) log it as a learning? Does it use DONE_WITH_CONCERNS (not DONE) as the completion status?
+```
+
+**Expected:** Skill attempts a workaround (e.g., `--all` flag or piping input). If workaround succeeds, uses the workaround output but notes the crash in a "Tool Issues" section. Logs the crash as an operational learning. Uses DONE_WITH_CONCERNS completion status (not DONE).

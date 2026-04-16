@@ -1,6 +1,6 @@
 ---
 name: nfcore-docs
-version: 1.0.0
+version: 1.0.1
 description: |
   Load nf-core documentation and specifications into context. Pulls latest docs from
   nf-core/website if stale (>24h). Covers specifications (pipeline requirements,
@@ -182,13 +182,16 @@ CLAUDE.md for their project first, then extend it with
 `/nfcore-docs` to add the nf-core docs reference.
 
 If `CLAUDE_MD_REF` is `missing` (CLAUDE.md exists but no nfcore-docs mention),
-use AskUserQuestion:
+you **MUST** use the **AskUserQuestion tool** (not plain text output) to ask:
 
 > Your CLAUDE.md doesn't reference `/nfcore-docs`. Adding a short section
 > helps future sessions know the skill is available.
 >
 > A) Add nf-core docs reference to CLAUDE.md
 > B) No thanks
+
+⚠️ Do NOT skip this step, even if you think CLAUDE.md shouldn't be modified.
+The user decides — not you. Do NOT output the question as plain text.
 
 If A, append this to the end of CLAUDE.md:
 
@@ -331,7 +334,7 @@ Launch 5 parallel agents, each responsible for one compliance domain.
 Each agent receives the lint output from Step A and the relevant spec
 files from Step B. Each returns findings with severity and confidence.
 
-Before launching agents, ask the user via AskUserQuestion:
+Before launching agents, you **MUST** use the **AskUserQuestion tool** to ask:
 
 > Running parallel compliance audit with 5 agents. Which model?
 >
@@ -339,6 +342,10 @@ Before launching agents, ask the user via AskUserQuestion:
 > B) Haiku — fast, cheaper, good for quick checks
 > C) Sonnet — balanced, recommended for thorough audits
 > D) Opus — most thorough, highest cost
+
+If the user already specified a model choice in their original message (e.g.,
+"use the default model"), you MAY skip this question and use their stated
+preference. Otherwise, you MUST ask via AskUserQuestion — not plain text.
 
 Use the Agent tool with `subagent_type: "general-purpose"` and set the
 `model` parameter based on the user's choice (omit for option A).
@@ -392,24 +399,21 @@ followed by positive findings.
 Launch all 5 agents in a single message using multiple Agent tool calls
 so they run in parallel.
 
-**Consolidation** (after all agents return):
-- Collect all findings from all 5 agents verbatim — do NOT summarize
-- Deduplicate: two findings are duplicates if they reference the same spec
-  filename AND the same severity level. Keep the one with higher confidence.
-  If confidence is equal, keep both (independent assessments are valuable)
-- Filter: confidence < 4 goes to appendix only (unless Critical severity)
-- Sort: Critical first, then High, then by confidence descending
-- Merge positive findings from all agents into one deduplicated list
-- Count total findings pre- and post-deduplication to verify nothing was lost
+⚠️ **IMMEDIATELY after all agents return — BEFORE any consolidation —
+save every agent's raw output to disk.** This is a blocking prerequisite
+for Step D. Do NOT proceed to consolidation until all 5 files are written.
 
-**Save raw agent findings** before consolidation:
 ```bash
 mkdir -p .nfcore-docs/reports/agents
 ```
-Write each agent's verbatim output to:
-`.nfcore-docs/reports/agents/{date}-agent{N}-{domain}.md`
+Write each agent's **complete, verbatim** output (copy-paste, no editing) to:
+- `.nfcore-docs/reports/agents/{date}-agent1-pipeline-requirements.md`
+- `.nfcore-docs/reports/agents/{date}-agent2-module-compliance.md`
+- `.nfcore-docs/reports/agents/{date}-agent3-subworkflow-compliance.md`
+- `.nfcore-docs/reports/agents/{date}-agent4-documentation-metadata.md`
+- `.nfcore-docs/reports/agents/{date}-agent5-git-ci-reviews.md`
 
-This preserves the raw findings for:
+This preserves raw findings for:
 - Debugging consolidation issues
 - Comparing agent outputs across runs
 - Verifying no findings were lost during deduplication
@@ -418,18 +422,44 @@ This preserves the raw findings for:
 If any agent fails or returns an error, note which domain was not audited
 and fall back to sequential evaluation for that domain only.
 
+**Consolidation** (after all 5 raw agent files are saved):
+- Collect all findings from all 5 agents — preserve the original text of
+  each finding (do not paraphrase or rewrite). Reorganizing and grouping
+  is allowed; changing the wording of individual findings is not.
+- Deduplicate: two findings are duplicates if they reference the same spec
+  filename AND the same severity level. Keep the one with higher confidence.
+  If confidence is equal, keep both (independent assessments are valuable)
+- Filter: confidence < 4 goes to a **Low-Confidence Appendix** section at
+  the end of the report (unless Critical severity — those always stay inline)
+- Sort: Critical first, then High, then by confidence descending
+- Merge positive findings from all agents into one deduplicated list
+- **Checkpoint:** Report pre- and post-deduplication counts in the report
+  header, e.g. "Raw findings: 142 | After dedup: 76 | Appendix: 3"
+
 **Step D: Produce the compliance report**
 
-Build the report dynamically from the spec files read in Step B. Group by
-directory (pipelines/requirements, pipelines/recommendations, components/modules,
-components/subworkflows, reviews, test-data). Each row is one spec file:
-- Title (from frontmatter)
-- Severity (Critical/High/Medium/Low)
-- Status (✓/✗/N/A)
-- Notes (specific findings, lint references, what's missing)
-- Spec file path (so the user can read the full text)
+Build the report dynamically from the spec files read in Step B.
 
-Start with a severity summary: `Critical: N | High: N | Medium: N | Low: N`
+⚠️ The **primary organization** of the report is by spec directory — NOT by
+severity. Severity is a column within each section, not the top-level grouping.
+
+Group into these sections (one per spec directory):
+1. `pipelines/requirements/` — Pipeline Requirements
+2. `pipelines/recommendations/` — Pipeline Recommendations
+3. `components/modules/` — Module Compliance
+4. `components/subworkflows/` — Subworkflow Compliance
+5. `reviews/` — Review Process
+6. `test-data/` — Test Data
+
+Within each section, present a table where each row is one spec file:
+
+| Spec file | Title | Status | Severity | Confidence | Notes |
+|-----------|-------|--------|----------|------------|-------|
+| `documentation.md` | Bundled documentation | ✗ | Critical | 10/10 | README is template placeholder |
+
+Start the report with:
+- Deduplication counts: `Raw findings: N | After dedup: N | Low-confidence appendix: N`
+- Severity summary: `Critical: N | High: N | Medium: N | Low: N`
 
 Include a **Positive Findings** section with:
 - Requirements already met (list each with ✓)
@@ -471,7 +501,8 @@ End with summary counts and this footer:
 
 **Step E: Offer to create GitHub issues for findings (optional)**
 
-After presenting the compliance report, use AskUserQuestion:
+After presenting the compliance report, you **MUST** use the **AskUserQuestion
+tool** to offer issue creation. Do NOT output this as plain text — use the tool:
 
 > Found X compliance gaps. Want me to create GitHub issues for them?
 > (yes / no / let me pick which ones)
@@ -503,8 +534,12 @@ This prevents duplicate issues when running audits repeatedly.
 and learnings are local session artifacts, not shared project data.
 
 **Tool crashes vs compliance failures:** If a lint tool crashes (stack trace,
-not a lint failure), report BLOCKED for that domain. Do not treat crashes as
-compliance failures. Log as an operational learning.
+not a lint failure), do NOT treat the crash as a compliance failure. Instead:
+1. Attempt a workaround (e.g., different flags, piping input)
+2. If the workaround succeeds, use the workaround output but note the crash
+   in the report under a "Tool Issues" section
+3. If no workaround works, report BLOCKED for that domain
+4. Always log the crash and workaround (if any) as an operational learning
 
 ### For other tasks
 
@@ -588,8 +623,11 @@ new findings, and overall trend (improving/degrading/stable).
 
 End every skill invocation with a status:
 
-- **DONE** — All steps completed. Summarize what was loaded/checked.
-- **DONE_WITH_CONCERNS** — Completed, but with issues to flag (e.g., stale cache, lint failures, uncertain findings).
+- **DONE** — All steps completed cleanly with no tool issues or uncertain findings.
+- **DONE_WITH_CONCERNS** — Completed, but flag issues: tool crashes (even if
+  worked around), stale cache, uncertain findings, or any step that required
+  a non-standard approach. Use this status if ANY lint tool crashed during
+  the session, even if a workaround succeeded.
 - **BLOCKED** — Cannot proceed. State what's blocking and what was tried.
 - **NEEDS_CONTEXT** — Missing information. State exactly what's needed.
 
