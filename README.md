@@ -15,9 +15,18 @@ A [Claude Code](https://claude.ai/code) skill for loading [nf-core](https://nf-c
 
 ### 1. Copy the skill
 
+**Global install** (recommended — available in all projects):
 ```bash
 mkdir -p ~/.claude/skills/nfcore-docs
-cp SKILL.md ~/.claude/skills/nfcore-docs/SKILL.md
+curl -sL https://raw.githubusercontent.com/benjibromberg/claude-nfcore-docs/main/SKILL.md \
+  -o ~/.claude/skills/nfcore-docs/SKILL.md
+```
+
+**Or local install** (one project only):
+```bash
+mkdir -p .claude/skills/nfcore-docs
+curl -sL https://raw.githubusercontent.com/benjibromberg/claude-nfcore-docs/main/SKILL.md \
+  -o .claude/skills/nfcore-docs/SKILL.md
 ```
 
 ### 2. Set up the docs cache
@@ -32,6 +41,8 @@ git pull origin main --depth 1
 ```
 
 This downloads ~172 doc pages + ~2,400 API reference files (~13MB on disk). Only the docs directory is checked out, not the full website repo.
+
+The cache is shared across all projects. If you skip this step, the skill will auto-create the cache on first use.
 
 ### 3. Allow read permissions
 
