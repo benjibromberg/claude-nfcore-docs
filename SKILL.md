@@ -277,11 +277,20 @@ whether the current pipeline satisfies them based on:
 - Per-module compliance against module spec files
 - Per-subworkflow compliance against subworkflow spec files
 
-Classify each finding by severity based on the spec language:
+Classify each finding by severity and confidence:
+
+**Severity** (from spec language):
 - **Critical** — MUST / MUST NOT violation (blocks nf-core acceptance)
 - **High** — SHOULD / SHOULD NOT gap (strongly recommended)
 - **Medium** — MAY suggestion or quality improvement
 - **Low** — Minor polish (TODOs, version warnings, formatting)
+
+**Confidence** (1-10):
+- 9-10: Verified by lint output or reading specific code. Show normally.
+- 7-8: High confidence pattern match against spec. Show normally.
+- 5-6: Moderate — could be misinterpreting spec. Show with caveat.
+- 3-4: Low — flag for manual review, don't include in main report.
+- 1-2: Speculation — only report for Critical or High severity items.
 
 **Step D: Produce the compliance report**
 
