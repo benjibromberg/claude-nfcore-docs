@@ -38,7 +38,12 @@ Or when prompted on first use, select "Always allow" for reads from this path.
 
 ## Step 1: Update docs and generate index
 
-Run this preamble to ensure docs are fresh and produce a full page + header index:
+**If this skill has already been invoked earlier in this conversation**, skip the
+preamble — the index and any loaded docs are already in context. Go directly to
+Step 2 to ask what additional docs to load, or answer questions from what's
+already loaded.
+
+Otherwise, run this preamble to ensure docs are fresh and produce the index:
 
 ```bash
 DOCS_CACHE="$HOME/.cache/nfcore-docs"
