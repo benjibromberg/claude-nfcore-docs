@@ -1,0 +1,34 @@
+name: Static Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  static-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Set up docs cache
+        run: |
+          mkdir -p ~/.cache/nfcore-docs
+          cd ~/.cache/nfcore-docs
+          git init
+          git remote add origin https://github.com/nf-core/website.git
+          git config core.sparseCheckout true
+          printf 'sites/docs/src/content/docs/\nsites/docs/src/content/api_reference/\n' > .git/info/sparse-checkout
+          git pull origin main --depth 1
+
+      - name: Run static tests
+        run: ./test.sh
