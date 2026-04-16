@@ -288,6 +288,28 @@ End with summary counts and this footer:
 > Verify against `nf-core pipelines lint` and the original specifications
 > at https://nf-co.re/docs/specifications/overview*
 
+**Step E: Offer to create GitHub issues for findings (optional)**
+
+After presenting the compliance report, use AskUserQuestion:
+
+> Found X compliance gaps. Want me to create GitHub issues for them?
+> (yes / no / let me pick which ones)
+
+If yes or selective:
+1. For each non-compliant item, check for existing issues first:
+   ```bash
+   gh issue list --search "{requirement keyword}" --state open
+   ```
+2. If a matching open issue exists, show it and ask whether to skip or create a new one
+3. For new issues, create with:
+   ```bash
+   gh issue create --title "chore(compliance): {spec title}" --body "..." --label "nf-core compliance"
+   ```
+   The body should include: spec reference, current status, what needs to change,
+   and the spec file path for reference.
+
+This prevents duplicate issues when running audits repeatedly.
+
 ### For other tasks
 
 For non-audit work, run only the relevant nf-core tools and load only the
