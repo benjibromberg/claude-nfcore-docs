@@ -33,7 +33,35 @@ git pull origin main --depth 1
 
 This downloads ~172 doc pages + ~2,400 API reference files (~13MB on disk). Only the docs directory is checked out, not the full website repo.
 
-### 3. Use it
+### 3. Allow read permissions
+
+To avoid being prompted for every file read, add this to your Claude Code settings:
+
+**Global** (`~/.claude/settings.json` — recommended, works across all projects):
+```json
+{
+  "permissions": {
+    "allow": [
+      "Read(//{home}/.cache/nfcore-docs/**)"
+    ]
+  }
+}
+```
+
+**Or per-project** (`.claude/settings.local.json`):
+```json
+{
+  "permissions": {
+    "allow": [
+      "Read(//{home}/.cache/nfcore-docs/**)"
+    ]
+  }
+}
+```
+
+Alternatively, select "Always allow" when prompted on first use.
+
+### 4. Use it
 
 ```
 /nfcore-docs

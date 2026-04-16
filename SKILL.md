@@ -20,6 +20,22 @@ allowed-tools:
 
 # nf-core Documentation Loader
 
+## Step 0: Check read permissions
+
+This skill reads many files from `~/.cache/nfcore-docs/`. To avoid being prompted
+for every file, add this permission to your global Claude Code settings
+(`~/.claude/settings.json`) or project settings (`.claude/settings.local.json`):
+
+```json
+"permissions": {
+  "allow": [
+    "Read(//{home}/.cache/nfcore-docs/**)"
+  ]
+}
+```
+
+Or when prompted on first use, select "Always allow" for reads from this path.
+
 ## Step 1: Update docs and generate index
 
 Run this preamble to ensure docs are fresh and produce a full page + header index:
