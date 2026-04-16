@@ -1,0 +1,93 @@
+# claude-nfcore-docs
+
+A [Claude Code](https://claude.ai/code) skill for loading [nf-core](https://nf-co.re/) documentation and specifications into context. Enables spec-driven development, compliance checking, and auditing for nf-core pipeline projects.
+
+## What it does
+
+- Downloads and caches all nf-core documentation from the [nf-core/website](https://github.com/nf-core/website) repo via sparse git checkout
+- Auto-updates when docs are stale (>24 hours)
+- Generates a full index of all doc pages with section headers
+- Loads relevant spec files into Claude's context based on your current task
+- Detects if you're in an nf-core pipeline repo and reports pipeline context
+- Cross-references `nf-core pipelines lint` output against specifications
+
+## Install
+
+### 1. Copy the skill
+
+```bash
+mkdir -p ~/.claude/skills/nfcore-docs
+cp SKILL.md ~/.claude/skills/nfcore-docs/SKILL.md
+```
+
+### 2. Set up the docs cache
+
+```bash
+mkdir -p ~/.cache/nfcore-docs && cd ~/.cache/nfcore-docs
+git init
+git remote add origin https://github.com/nf-core/website.git
+git config core.sparseCheckout true
+printf 'sites/docs/src/content/docs/\nsites/docs/src/content/api_reference/\n' > .git/info/sparse-checkout
+git pull origin main --depth 1
+```
+
+This downloads ~172 doc pages + ~2,400 API reference files (~13MB on disk). Only the docs directory is checked out, not the full website repo.
+
+### 3. Use it
+
+```
+/nfcore-docs
+```
+
+Then tell Claude what you need:
+- "Load the module specs for migration work"
+- "Check plantmine's compliance against all pipeline requirements"
+- "What does the git branches spec say?"
+- "Find the API reference for nf-core tools 3.5.2"
+
+## What's in the cache
+
+| Directory | Contents | Files |
+|-----------|----------|-------|
+| `docs/specifications/pipelines/requirements/` | Pipeline MUST requirements (19) | 20 |
+| `docs/specifications/pipelines/recommendations/` | Pipeline SHOULD recommendations (8) | 8 |
+| `docs/specifications/components/modules/` | Module conventions | 9 |
+| `docs/specifications/components/subworkflows/` | Subworkflow conventions | 7 |
+| `docs/specifications/reviews/` | PR review process | 5 |
+| `docs/specifications/test-data/` | Test data guidelines | 3 |
+| `docs/contributing/` | Contribution guidelines | ~20 |
+| `docs/developing/` | Developer guides | ~15 |
+| `docs/nf-core-tools/` | CLI tool reference | ~40 |
+| `docs/running/` | Pipeline execution | ~15 |
+| `api_reference/` | API docs by version (1.5–dev) | ~2,400 |
+
+## Task-based loading guide
+
+The skill loads only the files relevant to your current task:
+
+| Task | Spec files loaded |
+|------|-------------------|
+| Module migration | `specifications/components/modules/*.md` (9 files) |
+| Subworkflow restructure | `specifications/components/subworkflows/*.md` (7 files) |
+| nf-test coverage | `*/testing.md` across modules, subworkflows, recommendations |
+| Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` |
+| CI setup | `*/requirements/ci_testing.md` |
+| Full compliance audit | All pipeline requirements + recommendations (~28 files) |
+| Git/branch model | `*/requirements/git_branches.md` + `specifications/reviews/*.md` |
+| First release prep | All requirements + recommendations + reviews |
+
+## Requirements
+
+- [Claude Code](https://claude.ai/code) CLI
+- `git` (for sparse checkout)
+- `gh` CLI (for repo operations, optional)
+- `python3` (for index generation)
+- `nf-core` tools (for lint, optional)
+
+## Tests
+
+See [TESTS.md](TESTS.md) for the full test suite (10 tests covering freshness, loading, compliance, API reference, error handling).
+
+## License
+
+MIT (same as nf-core)
