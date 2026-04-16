@@ -89,6 +89,17 @@ command -v python3 >/dev/null 2>&1 && echo "python3: $(python3 --version 2>&1)" 
 command -v nf-core >/dev/null 2>&1 && echo "nf-core: $(nf-core --version 2>&1 | grep -o '[0-9.]*' | head -1)" || echo "nf-core: not found (optional — needed for lint/compliance checks)"
 command -v gh >/dev/null 2>&1 && echo "gh: $(gh --version 2>&1 | head -1)" || echo "gh: not found (optional — needed for issue creation)"
 
+# --- Check CLAUDE.md for nfcore-docs reference ---
+if [ -f "CLAUDE.md" ]; then
+  if grep -q "nfcore-docs" CLAUDE.md 2>/dev/null; then
+    echo "CLAUDE_MD_REF: yes"
+  else
+    echo "CLAUDE_MD_REF: missing"
+  fi
+else
+  echo "CLAUDE_MD_REF: no_file"
+fi
+
 # --- Prior learnings ---
 if [ -f .nfcore-docs/learnings.jsonl ]; then
   echo ""
@@ -164,6 +175,34 @@ if [ -f "nextflow.config" ] && grep -q "nf-core\|nf_core" nextflow.config 2>/dev
   echo "Local subworkflows: $(find subworkflows/local -name '*.nf' 2>/dev/null | wc -l | tr -d ' ')"
 fi
 ```
+
+If `CLAUDE_MD_REF` is `no_file`, suggest the user run `/init` to create a
+CLAUDE.md for their project first, then extend it with
+`/claude-md-management:claude-md-improver`. After CLAUDE.md exists, re-run
+`/nfcore-docs` to add the nf-core docs reference.
+
+If `CLAUDE_MD_REF` is `missing` (CLAUDE.md exists but no nfcore-docs mention),
+use AskUserQuestion:
+
+> Your CLAUDE.md doesn't reference `/nfcore-docs`. Adding a short section
+> helps future sessions know the skill is available.
+>
+> A) Add nf-core docs reference to CLAUDE.md
+> B) No thanks
+
+If A, append this to the end of CLAUDE.md:
+
+```markdown
+
+## nf-core Documentation
+
+- Use `/nfcore-docs` to load nf-core specs and docs into context
+- Docs cached at `~/.cache/nfcore-docs/` (sparse checkout of nf-core/website, auto-updates if >24h stale)
+- The skill generates a dynamic index of all pages with section headers on each invocation
+- Context budget: index ~15K tokens (1.5%), specs ~60K (6%), all docs ~275K (28%) of 1M
+```
+
+If `CLAUDE_MD_REF` is `yes`, skip — already referenced. This only runs once per project.
 
 ## Step 2: Determine what to load
 

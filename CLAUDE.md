@@ -10,7 +10,9 @@ A Claude Code skill (`/nfcore-docs`) that loads nf-core documentation and specif
   Keep the installed copy and repo copy in sync.
 - `README.md` — User-facing install and usage docs.
 - `TESTS.md` — 50-test suite with copy-paste prompts for manual testing in Claude Code sessions.
-- `snippet.md` — 4-line CLAUDE.md snippet users paste into their pipeline's CLAUDE.md.
+- `CONTRIBUTING.md` — How to contribute.
+- `CHANGELOG.md` — Version history.
+- `NOTICE.md` — Design pattern attribution.
 
 ## Development
 
