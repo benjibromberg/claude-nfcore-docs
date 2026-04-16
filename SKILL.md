@@ -289,14 +289,32 @@ components/subworkflows, reviews, test-data). Each row is one spec file:
 
 Start with a severity summary: `Critical: N | High: N | Medium: N | Low: N`
 
-Include a **positive findings** section noting what's already compliant —
-good patterns, exemplary modules, requirements already met. This helps users
-know what NOT to change and identifies patterns to replicate.
+Include a **Positive Findings** section with:
+- Requirements already met (list each with ✓)
+- Good patterns found in the codebase (e.g., proper ext.args usage, clean
+  container directives, well-structured channels)
+- Exemplary modules or subworkflows that could serve as templates for others
+- Progress since last audit (if a previous report exists)
+
+This helps users know what NOT to change and what patterns to replicate.
 
 Include per-module and per-subworkflow tables when relevant.
 
-End with a **recommended next actions** table mapping each finding to the
-specific nf-core tool or command that fixes it.
+End with a **Recommended Next Actions** table:
+
+| Priority | Finding | Fix with | Command |
+|----------|---------|----------|---------|
+| Critical | {finding} | {what to do} | `nf-core {command}` |
+| High | {finding} | {what to do} | `nf-core {command}` |
+| ... | | | |
+
+Common mappings:
+- Module structure → `nf-core modules create --empty-template`
+- Missing meta.yml → `nf-core modules create --empty-template`
+- Schema mismatch → `nf-core pipelines schema build`
+- Missing RO-Crate → `nf-core pipelines rocrate`
+- Module version updates → `nf-core modules update`
+- Local module exists upstream → `nf-core modules install {name}`
 
 End with summary counts and this footer:
 
