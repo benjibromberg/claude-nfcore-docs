@@ -1,109 +1,174 @@
 # Test Suite
 
-Run `/nfcore-docs` and then execute these tests to validate the skill.
+Each test includes a **Prompt** you can paste into a new Claude Code session to run it.
+Most tests require being in an nf-core pipeline directory (e.g., `plantmine/`) unless noted otherwise.
+
+---
 
 ## Test 1: Freshness check
 
-Confirm the cache freshness detection works.
+**Prompt:**
+```
+Run /nfcore-docs. When it asks what to load, select "13" (just use the index). Report the freshness status from the preamble output.
+```
 
 **Expected:** Reports age in hours and either "Docs are fresh" or triggers an update.
 
+---
+
 ## Test 2: Module spec loading
 
-Ask: "Load the module specs and tell me the first 3 MUST requirements."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 1 (module migration). After loading the module specs, tell me the first 3 MUST requirements from general.md.
+```
 
 **Expected:** Reads `specifications/components/modules/general.md` and extracts MUST requirements (e.g., input files in channel definitions, ext.args for non-file args, args variable naming).
 
+---
+
 ## Test 3: CI testing requirements
 
-Ask: "Load the CI testing requirement spec."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 5 (CI setup). What does nf-core require for CI testing?
+```
 
 **Expected:** Reads `specifications/pipelines/requirements/ci_testing.md` and reports MUST/SHOULD requirements for CI.
 
+---
+
 ## Test 4: Lint cross-reference
 
-Ask: "Run nf-core pipelines lint and cross-reference against the specs."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). Run all lint tools and cross-reference each warning/failure against the spec files. Classify each by MUST vs SHOULD.
+```
 
-**Expected:** Runs lint, maps each warning/failure to its corresponding specification file, and classifies by MUST vs SHOULD.
+**Expected:** Runs lint, maps each warning/failure to its corresponding specification file, and classifies by severity (Critical for MUST, High for SHOULD).
+
+---
 
 ## Test 5: Git branch compliance
 
-Ask: "Load the git branches spec and verify this pipeline's branch model."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 8 (git/branch model). Load the git branches spec and verify this pipeline's branch model is compliant.
+```
 
 **Expected:** Reads `specifications/pipelines/requirements/git_branches.md` and checks for master/main, dev, and TEMPLATE branches.
 
+---
+
 ## Test 6: API reference lookup
 
-Ask: "Find the API reference for nf-core tools 3.5.2."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 13 (index only). Then ask: find the API reference for nf-core tools 3.5.2 and list what lint tests are documented.
+```
 
-**Expected:** Lists contents of `api_reference/3.5.2/` including pipeline_lint_tests, module_lint_tests, and subworkflow_lint_tests directories.
+**Expected:** Uses Glob to find `api_reference/3.5.2/` and lists pipeline_lint_tests, module_lint_tests, and subworkflow_lint_tests contents.
+
+---
 
 ## Test 7: Subworkflow specs
 
-Ask: "Load all subworkflow specifications and summarize requirements."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 2 (subworkflow restructure). Summarize all MUST and SHOULD requirements for subworkflows.
+```
 
 **Expected:** Reads all 7 files in `specifications/components/subworkflows/` and extracts MUST/SHOULD requirements.
 
+---
+
 ## Test 8: Stale cache trigger
 
-Manually backdate the FETCH_HEAD and confirm the skill triggers an update:
-
-```bash
-touch -t $(date -v-48H +%Y%m%d%H%M.%S) ~/.cache/nfcore-docs/.git/FETCH_HEAD
+**Prompt:**
 ```
+First run this bash command to backdate the cache:
+touch -t $(date -v-48H +%Y%m%d%H%M.%S) ~/.cache/nfcore-docs/.git/FETCH_HEAD
 
-Then re-run `/nfcore-docs`.
+Then run /nfcore-docs. Select option 13 (index only). Report whether it triggered an update.
+```
 
 **Expected:** Reports ">24h ago" and triggers `git pull`.
 
+---
+
 ## Test 9: Missing cache auto-setup
 
-Temporarily rename the cache and run the skill:
-
-```bash
-mv ~/.cache/nfcore-docs ~/.cache/nfcore-docs-backup
+**Prompt:**
 ```
+First run: mv ~/.cache/nfcore-docs ~/.cache/nfcore-docs-backup
 
-**Expected:** Automatically creates the cache via sparse git checkout (not just instructions). Verify with `ls ~/.cache/nfcore-docs/sites/docs/`. Restore backup after:
-
-```bash
+Then run /nfcore-docs. Select option 13 (index only). After testing, restore:
 rm -rf ~/.cache/nfcore-docs && mv ~/.cache/nfcore-docs-backup ~/.cache/nfcore-docs
 ```
 
+**Expected:** Automatically creates the cache via sparse git checkout (not just instructions). Index generates after setup.
+
+---
+
 ## Test 10: Full compliance audit
 
-Ask: "Run a full compliance audit of this pipeline."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). Produce the full report. I want to see: severity summary, positive findings, recommended next actions table, and the accuracy disclaimer.
+```
 
 **Expected:**
 - Runs `nf-core pipelines lint`, `nf-core modules lint`, `nf-core subworkflows lint`
 - Checks for `ro-crate-metadata.json`
-- Reads all spec files under `specifications/` recursively (not a hardcoded list)
-- Produces a report with severity summary (`Critical: N | High: N | Medium: N | Low: N`)
+- Reads all spec files under `specifications/` recursively
+- Report includes severity summary (`Critical: N | High: N | Medium: N | Low: N`)
 - Includes a positive findings section
-- Includes a recommended next actions table
+- Includes a recommended next actions table with specific nf-core commands
 - Ends with the accuracy disclaimer footer
+- Ends with completion status (DONE or DONE_WITH_CONCERNS)
+
+---
 
 ## Test 11: Interactive menu
 
-Invoke `/nfcore-docs` with no additional context.
+**Prompt:**
+```
+Run /nfcore-docs
+```
 
 **Expected:** Shows AskUserQuestion with 14 options, context budget table, and note that the index is already loaded. Should follow re-ground/context/recommend/options structure.
 
+---
+
 ## Test 12: Session re-invocation
 
-Invoke `/nfcore-docs` twice in the same session.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 13 (index only).
+Then run /nfcore-docs again. Does it skip the preamble?
+```
 
 **Expected:** Second invocation skips the preamble (no freshness check, no index regeneration). Goes directly to Step 2 asking what else to load.
 
+---
+
 ## Test 13: Targeted module check
 
-Ask: "Check module compliance for this pipeline."
+**Prompt:**
+```
+Run /nfcore-docs. Select option 1 (module migration). After loading specs, run nf-core modules lint and cross-reference the output against the loaded module specs.
+```
 
-**Expected:** Loads `specifications/components/modules/*.md`, runs `nf-core modules lint`, cross-references output against loaded module specs.
+**Expected:** Loads `specifications/components/modules/*.md`, runs `nf-core modules lint`, maps output to module spec requirements.
+
+---
 
 ## Test 14: Module creation workflow
 
-Ask: "I need to create a new module for a tool called mytool."
+**Prompt:**
+```
+Run /nfcore-docs. I need to create a new local module for a tool called "mytool". Walk me through the process.
+```
 
 **Expected:**
 1. Checks `nf-core modules list remote` for existing module
@@ -111,126 +176,230 @@ Ask: "I need to create a new module for a tool called mytool."
 3. Loads module specs into context
 4. Offers to guide through completing the skeleton
 
+---
+
 ## Test 15: Severity and confidence in audit
 
-Run a full compliance audit and check findings format.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). For each finding in the report, I want to see both severity (Critical/High/Medium/Low) AND confidence (N/10). Show me findings across all confidence levels.
+```
 
 **Expected:** Each finding includes:
-- Severity: Critical/High/Medium/Low
+- Severity: Critical/High/Medium/Low (mapped from MUST/SHOULD/MAY)
 - Confidence: N/10 with appropriate display rules
-- Findings with confidence < 4 are excluded from main report or flagged
+- Findings with confidence < 4 are flagged or excluded from main report
+
+---
 
 ## Test 16: Issue creation from audit
 
-After a compliance audit, confirm the skill offers to create GitHub issues.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After the report, when asked about creating issues, select "let me pick which ones."
+```
 
-**Expected:** AskUserQuestion: "Found X compliance gaps. Want me to create GitHub issues?" with yes/no/selective options. If yes, checks for existing issues before creating duplicates.
+**Expected:** AskUserQuestion: "Found X compliance gaps. Want me to create GitHub issues?" with yes/no/selective options. If selective, presents each finding and asks create/skip. Checks for existing issues before creating.
+
+---
 
 ## Test 17: Completion status
 
-After any skill workflow completes, check the final output.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 4 (lint fixes). Load the specs, run pipelines lint, and cross-reference. What status do you end with?
+```
 
 **Expected:** Ends with one of: DONE, DONE_WITH_CONCERNS, BLOCKED, or NEEDS_CONTEXT.
 
+---
+
 ## Test 18: NEVER rules enforcement
 
-Try to trigger a NEVER rule violation:
-- Ask to "summarize lint output" (should NOT pipe through grep/head/tail)
-- Ask for compliance without running lint (should refuse)
+**Prompt:**
+```
+Run /nfcore-docs. Tell me if this pipeline is nf-core compliant WITHOUT running any lint tools. Just guess based on the file structure.
+```
 
-**Expected:** Skill follows NEVER rules — runs lint with full output, doesn't guess at compliance.
+**Expected:** Skill refuses to guess. States it must run lint tools first per NEVER rules. Offers to run the tools instead.
+
+---
 
 ## Test 19: Accuracy disclaimer
 
-Run any compliance check or audit.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 4 (lint fixes). Run lint and produce a compliance check. Does the output include an accuracy disclaimer?
+```
 
-**Expected:** Report footer includes: "This compliance report is AI-generated and may contain inaccuracies. Verify against nf-core pipelines lint and the original specifications."
+**Expected:** Report footer includes: "This compliance report is AI-generated and may contain inaccuracies..."
+
+---
 
 ## Test 20: Index covers all doc categories
 
-After running the preamble, check that the index includes files from every category.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 13 (index only). Does the index include files from ALL these categories: community, contributing, developing, get_started, nf-core-tools, running, specifications? Also check that API reference is listed.
+```
 
-**Expected:** Index output contains entries from: community, contributing, developing, get_started, nf-core-tools, running, specifications. Also shows API reference summary with version directories.
+**Expected:** Index output contains entries from all 7 categories plus API reference summary with version directories.
+
+---
 
 ## Test 21: Non-pipeline directory
 
-Run `/nfcore-docs` from a directory that is NOT an nf-core pipeline (e.g., home directory).
+**Prompt (run from home directory, NOT a pipeline):**
+```
+cd ~ && Run /nfcore-docs. Select option 13 (index only). Does it work without a pipeline?
+```
 
-**Expected:** Preamble completes without errors. Pipeline context section is skipped (no "Current Pipeline" output). Index still generates. Skill remains usable for browsing docs without a pipeline.
+**Expected:** Preamble completes without errors. Pipeline context section is skipped. Index still generates. Skill remains usable for browsing docs.
+
+---
 
 ## Test 22: Lint cache bug workaround
 
-Run a full compliance audit and verify the nf-core tools module cache is cleared.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). Check: does it clear ~/.config/nfcore/nf-core/modules/ before running lint?
+```
 
 **Expected:** The `rm -rf ~/.config/nfcore/nf-core/modules/` command runs before `nf-core pipelines lint`. Lint does not crash with "Branch 'master' not found."
 
+---
+
 ## Test 23: Load all specs context cost
 
-Select option 11 ("Load all specs") and check `/context` afterwards.
+**Prompt:**
+```
+Run /context first to get baseline.
+Then run /nfcore-docs. Select option 11 (load all specs).
+Then run /context again. How many tokens did the specs consume?
+```
 
-**Expected:** ~60K tokens consumed by spec files (~6% of 1M). Verify the number is in the ballpark — if wildly different, the context budget table in Step 2 needs updating.
+**Expected:** ~60K tokens consumed by spec files (~6% of 1M).
+
+---
 
 ## Test 24: Load all docs context cost
 
-Select option 12 ("Load all docs") and check `/context` afterwards.
+**Prompt:**
+```
+Run /context first to get baseline.
+Then run /nfcore-docs. Select option 12 (load all docs).
+Then run /context again. How many tokens did all docs consume?
+```
 
-**Expected:** ~275K tokens consumed total (~28% of 1M). Same verification as test 23.
+**Expected:** ~275K tokens consumed total (~28% of 1M).
+
+---
 
 ## Test 25: Escalation after repeated failure
 
-Simulate a failing nf-core tool (e.g., by temporarily renaming `nf-core` binary).
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). Before running lint, temporarily rename nf-core:
+sudo mv $(which nf-core) $(which nf-core).bak
 
-**Expected:** After failing to run lint, the skill should not retry indefinitely. Should report BLOCKED status with what was attempted and what the user should do.
+Then try the audit. After testing, restore:
+sudo mv $(which nf-core).bak $(which nf-core)
+```
+
+**Expected:** After failing to run lint, reports BLOCKED status with what was attempted and what the user should do. Does not retry indefinitely.
+
+---
 
 ## Test 26: Duplicate issue detection
 
-Create a GitHub issue titled "chore(compliance): Docker Support" manually, then run an audit that finds a Docker compliance gap.
+**Prompt:**
+```
+First create a test issue: gh issue create --title "chore(compliance): Docker Support" --body "test"
+Then run /nfcore-docs. Select option 6 (full compliance audit). When asked about creating issues, say yes. Does it detect the existing Docker issue?
+Clean up: gh issue close <number> after testing.
+```
 
-**Expected:** Skill detects the existing issue via `gh issue list --search` and asks whether to skip or create a new one, rather than creating a duplicate.
+**Expected:** Skill detects the existing issue via `gh issue list --search` and asks whether to skip or create a new one.
+
+---
 
 ## Test 27: Custom file request (option 14)
 
-Select option 14 ("Something else") and ask for a specific doc page by name.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 14 (something else). Say: "Show me the release procedure documentation."
+```
 
-**Expected:** Skill uses the index to find the file path and reads it. Works for both spec files and non-spec files (e.g., "show me the release procedure docs").
+**Expected:** Skill searches the index for "release procedure", finds `developing/pipelines/release-procedure.md`, and reads it.
+
+---
 
 ## Test 28: Stale cache update preserves structure
 
-Backdate FETCH_HEAD, run the skill, and verify the update doesn't break the index.
+**Prompt:**
+```
+First backdate: touch -t $(date -v-48H +%Y%m%d%H%M.%S) ~/.cache/nfcore-docs/.git/FETCH_HEAD
+Then run /nfcore-docs. Select option 13 (index only).
+Does the index regenerate correctly after the update? Any missing categories?
+```
 
-**Expected:** `git pull` runs, FETCH_HEAD timestamp updates, index regenerates with current file list. No orphaned files from previous versions.
+**Expected:** `git pull` runs, FETCH_HEAD updates, index regenerates with all categories intact.
+
+---
 
 ## Test 29: Severity mapping accuracy
 
-Load a spec file that contains MUST, SHOULD, and MAY statements. Run an audit.
+**Prompt:**
+```
+Run /nfcore-docs. Load specifications/pipelines/requirements/git_branches.md. This file contains MUST, SHOULD, and MAY statements. Now run an audit of just the git branch model. Are the severity levels correctly mapped?
+```
 
 **Expected:**
-- MUST violations → Critical severity
-- SHOULD gaps → High severity
-- MAY suggestions → Medium severity
-- Lint warnings without spec mapping → Low severity
-- No severity level is skipped or misapplied
+- MUST violations → Critical
+- SHOULD gaps → High
+- MAY suggestions → Medium
+- No severity misapplied
+
+---
 
 ## Test 30: Positive findings completeness
 
-Run a full audit on a pipeline that passes some requirements.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). In the positive findings section, does each finding reference a specific spec file? Are they specific (e.g., "MIT license present") or vague (e.g., "some requirements met")?
+```
 
-**Expected:** Positive findings section lists specific requirements that ARE met (not just "some requirements met"). Each positive finding references the spec file it corresponds to.
+**Expected:** Each positive finding references a specific spec file and is concrete, not vague.
+
+---
 
 ## Test 31: Action mapping specificity
 
-Run a full audit with findings.
+**Prompt:**
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). In the recommended next actions table, is every command copy-pasteable? Any generic advice like "fix this" without a specific command?
+```
 
-**Expected:** Each finding in the "Recommended Next Actions" table maps to a specific `nf-core` command, not generic advice. Commands should be copy-pasteable.
+**Expected:** Every action maps to a specific `nf-core` command. No generic advice.
+
+---
 
 ## Test 32: Mixed intent detection
 
-Say: "I need help with module migration and also want to check CI."
+**Prompt:**
+```
+Run /nfcore-docs. I need help with module migration and also want to check CI compliance. Load both sets of docs and run both checks.
+```
 
-**Expected:** Skill loads both `specifications/components/modules/*.md` AND `specifications/pipelines/requirements/ci_testing.md`. Runs both `nf-core modules lint` and checks `.github/workflows/`. Does not force user to pick just one option.
+**Expected:** Loads `specifications/components/modules/*.md` AND `specifications/pipelines/requirements/ci_testing.md`. Runs both `nf-core modules lint` and checks CI workflows. Does not force user to pick one.
+
+---
 
 ## Test 33: Index-only mode
 
-Select option 13 ("Just use the index").
+**Prompt:**
+```
+Run /nfcore-docs. Select option 13 (just use the index). Then ask: "What docs exist about testing?" Answer from the index without reading any spec files.
+```
 
-**Expected:** No additional files are read. Skill confirms the index is available and waits for specific questions. Can answer "what docs exist about testing?" from the index alone without loading any spec files.
+**Expected:** No additional files are read. Answers from the index by listing testing-related entries (module testing, subworkflow testing, pipeline testing recommendation, test data specs).
