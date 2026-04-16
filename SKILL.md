@@ -405,6 +405,45 @@ When the user needs to create a new module or subworkflow:
 - Assume spec files are current without checking cache freshness
 - Load the full index/preamble if already loaded earlier in the conversation
 
+## Persistence
+
+**Audit reports:** After producing a compliance report (Step D), save it:
+```bash
+mkdir -p .nfcore-docs/reports
+```
+Write the report to `.nfcore-docs/reports/{date}-compliance.md`. This enables
+trend tracking across audits and cross-session reference.
+
+**Operational learnings:** Before completing, reflect:
+- Did any nf-core tools fail unexpectedly?
+- Did a spec interpretation turn out to be wrong?
+- Did the user correct a compliance assessment?
+- Was a spec file missing or outdated?
+
+If yes, log a learning:
+```bash
+mkdir -p .nfcore-docs
+echo '{"ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","context":"WHAT_WAS_BEING_DONE","insight":"WHAT_WAS_LEARNED","confidence":"high|medium|low"}' >> .nfcore-docs/learnings.jsonl
+```
+Only log genuine discoveries. A good test: would knowing this save time in a
+future session? If yes, log it. Don't log transient errors or obvious things.
+
+**Prior learnings:** At skill start (end of Step 1), check for learnings:
+```bash
+if [ -f .nfcore-docs/learnings.jsonl ]; then
+  echo "LEARNINGS: $(wc -l < .nfcore-docs/learnings.jsonl | tr -d ' ') entries"
+  cat .nfcore-docs/learnings.jsonl
+fi
+```
+Use prior learnings to avoid repeating mistakes from previous sessions.
+
+**Trend tracking:** If a previous report exists, compare against it:
+```bash
+ls -t .nfcore-docs/reports/*.md 2>/dev/null | head -2
+```
+If two or more reports exist, summarize: resolved findings, persistent findings,
+new findings, and overall trend (improving/degrading/stable).
+
 ## Completion
 
 End every skill invocation with a status:
