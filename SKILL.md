@@ -232,28 +232,66 @@ After loading the relevant docs:
 3. Flag any violations or missing requirements
 4. Suggest specific fixes with file paths and code
 
-If the user asks for a compliance check, run the appropriate nf-core tools.
 **Never pipe output through head/tail/grep** — always show full output.
 
+### Full compliance audit (selection 6)
+
+When the user selects "Full compliance audit" or asks for a compliance check:
+
+**Step A: Run all nf-core lint tools**
+
 ```bash
-# Clear stale nf-core tools module cache (known bug in tools ≤3.5.2)
-rm -rf ~/.config/nfcore/nf-core/modules/
-
-# Pipeline-level lint (always run for compliance checks)
+rm -rf ~/.config/nfcore/nf-core/modules/  # clear stale cache (tools ≤3.5.2 bug)
 nf-core pipelines lint
-
-# Module-level lint (run for module migration or targeted module checks)
 nf-core modules lint
-
-# Subworkflow-level lint (run for subworkflow work)
 nf-core subworkflows lint
+ls ro-crate-metadata.json 2>/dev/null && echo "RO-Crate: present" || echo "RO-Crate: missing"
 ```
 
-When producing compliance reports, always include this footer:
+**Step B: Read ALL spec files**
+
+Read every `.md` file under `specifications/` recursively. Do NOT hardcode a
+list of directories or files — the file tree IS the checklist. Each file
+defines one or more compliance rules. This ensures the audit stays current
+when nf-core adds, moves, or renames spec files.
+
+```bash
+find ~/.cache/nfcore-docs/sites/docs/src/content/docs/specifications -name "*.md" | sort
+```
+
+Read all of them into context.
+
+**Step C: Evaluate compliance at all levels**
+
+For each spec file, extract the MUST/SHOULD/MAY statements and evaluate
+whether the current pipeline satisfies them based on:
+- Lint output from Step A
+- Pipeline file structure, config, and git state
+- Per-module compliance against module spec files
+- Per-subworkflow compliance against subworkflow spec files
+
+**Step D: Produce the compliance report**
+
+Build the report dynamically from the spec files read in Step B. Group by
+directory (pipelines/requirements, pipelines/recommendations, components/modules,
+components/subworkflows, reviews, test-data). Each row is one spec file:
+- Title (from frontmatter)
+- Status (✓/✗/N/A)
+- Notes (specific findings, lint references, what's missing)
+- Spec file path (so the user can read the full text)
+
+Include per-module and per-subworkflow tables when relevant.
+
+End with summary counts and this footer:
 
 > *This compliance report is AI-generated and may contain inaccuracies.
 > Verify against `nf-core pipelines lint` and the original specifications
 > at https://nf-co.re/docs/specifications/overview*
+
+### For other tasks
+
+For non-audit work, run only the relevant nf-core tools and load only the
+relevant spec files — not the full `specifications/` tree.
 
 **Delegate to nf-core tools** — never reimplement their functionality:
 - Module/subworkflow creation: `nf-core modules create`, `nf-core subworkflows create`
