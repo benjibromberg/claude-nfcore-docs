@@ -72,7 +72,20 @@ To avoid being prompted for every file read, add this to your Claude Code settin
 
 Alternatively, select "Always allow" when prompted on first use.
 
-### 4. Use it
+### 4. Add to your pipeline's CLAUDE.md (optional)
+
+Add this to your nf-core pipeline's CLAUDE.md so Claude always knows the skill is available:
+
+```markdown
+## nf-core Documentation
+
+- Use `/nfcore-docs` to load nf-core specs and docs into context
+- Docs cached at `~/.cache/nfcore-docs/` (sparse checkout of nf-core/website, auto-updates if >24h stale)
+- The skill generates a dynamic index of all pages with section headers on each invocation
+- Context budget: index ~15K tokens (1.5%), specs ~60K (6%), all docs ~275K (28%) of 1M
+```
+
+### 5. Use it
 
 ```
 /nfcore-docs
