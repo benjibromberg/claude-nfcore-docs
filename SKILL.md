@@ -144,34 +144,77 @@ if [ -f "nextflow.config" ] && grep -q "nf-core\|nf_core" nextflow.config 2>/dev
 fi
 ```
 
-## Step 2: Load relevant doc files
+## Step 2: Determine what to load
 
-Based on the index output and the user's task, use the Read tool to load the
-relevant documentation files into context.
+The full index with page titles and section headers is now in context (~15K tokens).
+You can already answer "what docs exist about X?" from the index alone.
 
-**File locations:**
+If the user's intent is clear from their message (e.g., "load module specs",
+"check CI compliance"), skip the prompt and load the relevant files directly.
+
+If the user's intent is ambiguous (e.g., just `/nfcore-docs` with no context),
+use AskUserQuestion to ask:
+
+> The nf-core docs index is now loaded (172 pages with section headers).
+> I can navigate any topic from the index. Want me to load the full text
+> of specific sections into context?
+>
+> 1. Module migration — module structure, naming, ext.args, meta.yml (9 files)
+> 2. Subworkflow restructure — conventions, I/O, naming (7 files)
+> 3. nf-test coverage — testing specs for modules, subworkflows, pipelines (3 files)
+> 4. Lint fixes — linting rules, parameter conventions (2 files)
+> 5. CI setup — GitHub Actions, test profiles (1 file)
+> 6. Full compliance audit — all pipeline requirements + recommendations (28 files)
+> 7. Documentation — README, usage.md, output.md, module docs (3 files)
+> 8. Git/branch model — branch naming, reviews, merge strategy (6 files)
+> 9. First release prep — all requirements + recommendations + reviews (33 files)
+> 10. nf-core CLI reference — tools docs (~40 files)
+> 11. Load all specs — 56 spec files (~60K tokens, 6% of 1M context)
+> 12. Load all docs — all 172 files (~275K tokens, 28% of 1M context)
+> 13. Just use the index — don't load anything else yet, I'll ask for specific files
+> 14. Something else — describe what you need
+
+**Context budget (measured on Opus 1M):**
+
+| Layer | Files | Tokens | % of 1M |
+|-------|-------|--------|---------|
+| Index only (already loaded) | — | ~15K | 1.5% |
+| + Specifications | 56 | ~60K | 6% |
+| + All remaining docs | 116 | ~200K | 20% |
+| **Total (all docs)** | **172** | **~275K** | **28%** |
+
+For most compliance work, **index + specs (~75K, 8%)** is sufficient. The remaining
+200K of contributing/developing/running/community docs are reference material — load
+selectively by section when needed.
+
+## Step 3: Load doc files
+
+Base paths:
+
 - Docs: `~/.cache/nfcore-docs/sites/docs/src/content/docs/`
-- API reference: `~/.cache/nfcore-docs/sites/docs/src/content/api_reference/`
+- API: `~/.cache/nfcore-docs/sites/docs/src/content/api_reference/`
 
-**Quick reference — which files for which task:**
+**File mapping:**
 
-| Task | Directory/files |
-|------|----------------|
-| Module migration | `docs/specifications/components/modules/*.md` |
-| Subworkflow work | `docs/specifications/components/subworkflows/*.md` |
-| nf-test coverage | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md` |
-| Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` |
-| CI setup | `*/requirements/ci_testing.md` |
-| Full compliance audit | `docs/specifications/pipelines/requirements/*.md` + `docs/specifications/pipelines/recommendations/*.md` |
-| Git/branch model | `*/requirements/git_branches.md` + `docs/specifications/reviews/*.md` |
-| Documentation updates | `*/requirements/documentation.md` + `*/modules/documentation.md` |
-| First release prep | All pipeline requirements + recommendations + reviews |
-| nf-core CLI usage | `docs/nf-core-tools/` |
-| Pipeline execution | `docs/running/` |
-| Pipeline/module API | `api_reference/` (use Glob to find specific pipeline/module) |
+| Selection | Files to Read |
+|-----------|---------------|
+| 1. Module migration | `specifications/components/modules/*.md` (9 files) |
+| 2. Subworkflow work | `specifications/components/subworkflows/*.md` (7 files) |
+| 3. nf-test coverage | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md` |
+| 4. Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` |
+| 5. CI setup | `*/requirements/ci_testing.md` |
+| 6. Full compliance audit | `specifications/pipelines/requirements/*.md` + `specifications/pipelines/recommendations/*.md` |
+| 7. Documentation | `*/requirements/documentation.md` + `*/modules/documentation.md` + `*/subworkflows/documentation.md` |
+| 8. Git/branch model | `*/requirements/git_branches.md` + `specifications/reviews/*.md` |
+| 9. First release | All pipeline requirements + recommendations + reviews |
+| 10. CLI reference | `nf-core-tools/*.md` |
+| 11. All specs | All files under `specifications/` (56 files) |
+| 12. All docs | All files under the docs root (172 files) |
+| 13. Index only | No additional files — use index to answer questions or load specific files on demand |
+| 14. Custom | Use Grep on the index output to find relevant files |
 
-Read the files the user needs. For targeted work, load only the relevant section.
-For audits, load all pipeline specs. For API reference, search by pipeline or module name.
+For API reference lookups, use Glob:
+`~/.cache/nfcore-docs/sites/docs/src/content/api_reference/{version}/`
 
 **Note:** Files contain Astro/Starlight frontmatter (YAML between `---`).
 The specification content follows after the frontmatter.
