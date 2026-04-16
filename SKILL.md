@@ -224,7 +224,7 @@ For API reference lookups, use Glob:
 **Note:** Files contain Astro/Starlight frontmatter (YAML between `---`).
 The specification content follows after the frontmatter.
 
-## Step 3: Apply specs to the current work
+## Step 4: Apply specs to the current work
 
 After loading the relevant docs:
 1. Identify which rules apply to the current task
@@ -232,11 +232,26 @@ After loading the relevant docs:
 3. Flag any violations or missing requirements
 4. Suggest specific fixes with file paths and code
 
-If the user asks for a compliance check, also run:
+If the user asks for a compliance check, run the appropriate nf-core tools.
+**Never pipe output through head/tail/grep** — always show full output.
 
 ```bash
 # Clear stale nf-core tools module cache (known bug in tools ≤3.5.2)
 rm -rf ~/.config/nfcore/nf-core/modules/
-# Run lint — never pipe through head/tail/grep
+
+# Pipeline-level lint (always run for compliance checks)
 nf-core pipelines lint
+
+# Module-level lint (run for module migration or targeted module checks)
+nf-core modules lint
+
+# Subworkflow-level lint (run for subworkflow work)
+nf-core subworkflows lint
 ```
+
+**Delegate to nf-core tools** — never reimplement their functionality:
+- Module/subworkflow creation: `nf-core modules create`, `nf-core subworkflows create`
+- Schema work: `nf-core pipelines schema build`
+- RO-Crate: `nf-core pipelines rocrate`
+- Module updates: `nf-core modules update`
+- Finding existing modules: `nf-core modules list remote`
