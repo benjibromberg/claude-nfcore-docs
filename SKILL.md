@@ -303,10 +303,12 @@ If yes or selective:
 2. If a matching open issue exists, show it and ask whether to skip or create a new one
 3. For new issues, create with:
    ```bash
-   gh issue create --title "chore(compliance): {spec title}" --body "..." --label "nf-core compliance"
+   gh issue create --title "chore(compliance): {spec title}" --body "..."
    ```
    The body should include: spec reference, current status, what needs to change,
-   and the spec file path for reference.
+   and the spec file path for reference. Add `--label "nf-core compliance"` if
+   the label exists on the repo (check with `gh label list` first, or skip the
+   label flag to avoid errors).
 
 This prevents duplicate issues when running audits repeatedly.
 
