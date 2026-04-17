@@ -1,9 +1,0 @@
-# Ruff configuration for claude-nfcore-docs
-# https://docs.astral.sh/ruff/
-
-exclude = [
-    "tests/fixtures/",  # Cloned nf-core pipelines — not our code
-]
-
-[format]
-quote-style = "double"

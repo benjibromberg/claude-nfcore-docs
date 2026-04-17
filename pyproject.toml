@@ -1,0 +1,17 @@
+[project]
+name = "claude-nfcore-docs"
+version = "1.0.1"
+description = "Claude Code skill for loading nf-core documentation and specifications"
+requires-python = ">=3.11"
+
+[tool.ruff]
+exclude = [
+    "tests/fixtures/",  # Cloned nf-core pipelines — not our code
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--ignore=tests/test_e2e.py --ignore=tests/fixtures"

@@ -57,23 +57,31 @@ Read the CLAUDE.md for full constraints. The critical ones:
 - **Keep the installed copy in sync** — if you edit SKILL.md, the installed copy at
   `~/.claude/skills/nfcore-docs/SKILL.md` must match
 
-## Linting
+## Linting & pre-commit
 
 All Python code must pass [ruff](https://docs.astral.sh/ruff/) lint and format checks.
-Configuration is in `ruff.toml` (excludes fixture pipelines).
+Configuration is in `pyproject.toml` (excludes fixture pipelines).
+
+Set up pre-commit hooks to enforce this automatically on every commit:
 
 ```bash
-# Check for lint issues
-ruff check tests/
-
-# Check formatting
-ruff format --check tests/
-
-# Auto-fix both
-ruff check tests/ --fix && ruff format tests/
+pip install pre-commit   # if not already installed
+pre-commit install       # installs git hooks
 ```
 
-CI enforces both — PRs will fail if ruff reports any issues.
+After this, every `git commit` will automatically run ruff lint, ruff format,
+trailing whitespace checks, and YAML/JSON validation. If any hook fails, the
+commit is blocked until you fix the issue.
+
+```bash
+# Run all hooks manually (without committing)
+pre-commit run --all-files
+
+# Or run ruff directly
+ruff check tests/ && ruff format --check tests/
+```
+
+CI also enforces ruff via `astral-sh/ruff-action@v4` — PRs will fail if ruff reports any issues.
 
 ## Pull requests
 

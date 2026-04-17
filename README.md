@@ -16,6 +16,7 @@ A [Claude Code](https://claude.ai/code) skill for loading [nf-core](https://nf-c
 ### 1. Copy the skill
 
 **Global install** (recommended — available in all projects):
+
 ```bash
 mkdir -p ~/.claude/skills/nfcore-docs
 curl -sL https://raw.githubusercontent.com/benjibromberg/claude-nfcore-docs/main/SKILL.md \
@@ -23,6 +24,7 @@ curl -sL https://raw.githubusercontent.com/benjibromberg/claude-nfcore-docs/main
 ```
 
 **Or local install** (one project only):
+
 ```bash
 mkdir -p .claude/skills/nfcore-docs
 curl -sL https://raw.githubusercontent.com/benjibromberg/claude-nfcore-docs/main/SKILL.md \
@@ -49,23 +51,21 @@ The cache is shared across all projects. If you skip this step, the skill will a
 To avoid being prompted for every file read, add this to your Claude Code settings:
 
 **Global** (`~/.claude/settings.json` — recommended, works across all projects):
+
 ```json
 {
   "permissions": {
-    "allow": [
-      "Read(//{home}/.cache/nfcore-docs/**)"
-    ]
+    "allow": ["Read(//{home}/.cache/nfcore-docs/**)"]
   }
 }
 ```
 
 **Or per-project** (`.claude/settings.local.json`):
+
 ```json
 {
   "permissions": {
-    "allow": [
-      "Read(//{home}/.cache/nfcore-docs/**)"
-    ]
+    "allow": ["Read(//{home}/.cache/nfcore-docs/**)"]
   }
 }
 ```
@@ -92,6 +92,7 @@ Add this to your nf-core pipeline's CLAUDE.md so Claude always knows the skill i
 ```
 
 Then tell Claude what you need:
+
 - "Load the module specs for migration work"
 - "Run a full compliance audit against all pipeline requirements"
 - "What does the git branches spec say?"
@@ -99,34 +100,34 @@ Then tell Claude what you need:
 
 ## What's in the cache
 
-| Directory | Contents | Files |
-|-----------|----------|-------|
-| `docs/specifications/pipelines/requirements/` | Pipeline MUST requirements (19) | 20 |
-| `docs/specifications/pipelines/recommendations/` | Pipeline SHOULD recommendations (8) | 8 |
-| `docs/specifications/components/modules/` | Module conventions | 9 |
-| `docs/specifications/components/subworkflows/` | Subworkflow conventions | 7 |
-| `docs/specifications/reviews/` | PR review process | 5 |
-| `docs/specifications/test-data/` | Test data guidelines | 3 |
-| `docs/contributing/` | Contribution guidelines | ~20 |
-| `docs/developing/` | Developer guides | ~15 |
-| `docs/nf-core-tools/` | CLI tool reference | ~40 |
-| `docs/running/` | Pipeline execution | ~15 |
-| `api_reference/` | API docs by version (1.5–dev) | ~2,400 |
+| Directory                                        | Contents                            | Files  |
+| ------------------------------------------------ | ----------------------------------- | ------ |
+| `docs/specifications/pipelines/requirements/`    | Pipeline MUST requirements (19)     | 20     |
+| `docs/specifications/pipelines/recommendations/` | Pipeline SHOULD recommendations (8) | 8      |
+| `docs/specifications/components/modules/`        | Module conventions                  | 9      |
+| `docs/specifications/components/subworkflows/`   | Subworkflow conventions             | 7      |
+| `docs/specifications/reviews/`                   | PR review process                   | 5      |
+| `docs/specifications/test-data/`                 | Test data guidelines                | 3      |
+| `docs/contributing/`                             | Contribution guidelines             | ~20    |
+| `docs/developing/`                               | Developer guides                    | ~15    |
+| `docs/nf-core-tools/`                            | CLI tool reference                  | ~40    |
+| `docs/running/`                                  | Pipeline execution                  | ~15    |
+| `api_reference/`                                 | API docs by version (1.5–dev)       | ~2,400 |
 
 ## Task-based loading guide
 
 The skill loads only the files relevant to your current task:
 
-| Task | Spec files loaded |
-|------|-------------------|
-| Module migration | `specifications/components/modules/*.md` (9 files) |
-| Subworkflow restructure | `specifications/components/subworkflows/*.md` (7 files) |
-| nf-test coverage | `*/testing.md` across modules, subworkflows, recommendations |
-| Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` |
-| CI setup | `*/requirements/ci_testing.md` |
-| Full compliance audit | All pipeline requirements + recommendations (~28 files) |
-| Git/branch model | `*/requirements/git_branches.md` + `specifications/reviews/*.md` |
-| First release prep | All requirements + recommendations + reviews |
+| Task                    | Spec files loaded                                                |
+| ----------------------- | ---------------------------------------------------------------- |
+| Module migration        | `specifications/components/modules/*.md` (9 files)               |
+| Subworkflow restructure | `specifications/components/subworkflows/*.md` (7 files)          |
+| nf-test coverage        | `*/testing.md` across modules, subworkflows, recommendations     |
+| Lint fixes              | `*/requirements/linting.md` + `*/requirements/parameters.md`     |
+| CI setup                | `*/requirements/ci_testing.md`                                   |
+| Full compliance audit   | All pipeline requirements + recommendations (~28 files)          |
+| Git/branch model        | `*/requirements/git_branches.md` + `specifications/reviews/*.md` |
+| First release prep      | All requirements + recommendations + reviews                     |
 
 ## Accuracy disclaimer
 

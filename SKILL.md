@@ -219,7 +219,6 @@ The user decides — not you. Do NOT output the question as plain text.
 If A, append this to the end of CLAUDE.md:
 
 ```markdown
-
 ## nf-core Documentation
 
 - Use `/nfcore-docs` to load nf-core specs and docs into context
@@ -240,6 +239,7 @@ If the user's intent is clear from their message (e.g., "load module specs",
 
 **Always load first (before asking):** Read the git/review specs automatically —
 they're relevant to any contribution and small enough to always include:
+
 - `specifications/pipelines/requirements/git_branches.md`
 - `specifications/reviews/*.md` (commit strategy, rapid merge, request reviewers, review scope)
 
@@ -258,6 +258,7 @@ than 4 options — the tool will reject it.
 Before asking, briefly orient the user on what's available. Output something like:
 
 > The nf-core docs cache has **172 files** across 7 categories:
+>
 > - **Specifications** (56 files) — pipeline requirements and recommendations, module/subworkflow
 >   conventions, test data standards, review/merge guidelines, VIPs
 > - **Developing** (37 files) — component creation (ext.args, meta maps, cross-org),
@@ -291,6 +292,7 @@ The write-in "Other" covers: CLI reference, just the index, custom requests.
 **Tier 2: Follow-up** (if user picks A, C, or D, ask a second AskUserQuestion):
 
 If **Component work** (A):
+
 > Which component area?
 >
 > A) Module migration — structure, naming, ext.args, meta.yml (9 files)
@@ -299,6 +301,7 @@ If **Component work** (A):
 > D) All component specs — modules + subworkflows + testing (16 files)
 
 If **Pipeline requirements** (C):
+
 > Which pipeline area?
 >
 > A) Lint fixes — linting rules, parameter conventions (2 files)
@@ -307,6 +310,7 @@ If **Pipeline requirements** (C):
 > D) First release prep — all requirements + recommendations (33 files)
 
 If **Load into context** (D):
+
 > How much to load?
 >
 > A) Just the specs — 56 specification/requirement files (~60K tokens, 6% of 1M)
@@ -314,12 +318,12 @@ If **Load into context** (D):
 
 **Context budget (measured on Opus 1M):**
 
-| Layer | Files | Tokens | % of 1M |
-|-------|-------|--------|---------|
-| Index + git/review specs (always loaded) | ~6 | ~20K | 2% |
-| + All remaining specifications | ~50 | ~55K | 5.5% |
-| + All remaining docs | 116 | ~200K | 20% |
-| **Total (all docs)** | **172** | **~275K** | **28%** |
+| Layer                                    | Files   | Tokens    | % of 1M |
+| ---------------------------------------- | ------- | --------- | ------- |
+| Index + git/review specs (always loaded) | ~6      | ~20K      | 2%      |
+| + All remaining specifications           | ~50     | ~55K      | 5.5%    |
+| + All remaining docs                     | 116     | ~200K     | 20%     |
+| **Total (all docs)**                     | **172** | **~275K** | **28%** |
 
 For most compliance work, **index + specs (~75K, 8%)** is sufficient. The remaining
 200K of contributing/developing/running/community docs are reference material — load
@@ -334,23 +338,23 @@ Base paths:
 
 **File mapping and nf-core tools to run:**
 
-| Selection | Spec files to Read | nf-core tool to run |
-|-----------|-------------------|---------------------|
-| Module migration | `specifications/components/modules/*.md` | `nf-core modules lint` |
-| Subworkflow work | `specifications/components/subworkflows/*.md` | `nf-core subworkflows lint` |
-| nf-test coverage | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md` | `nf-core modules test`, `nf-core subworkflows test` |
-| All component specs | `specifications/components/**/*.md` | `nf-core modules lint` + `nf-core subworkflows lint` |
-| Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` | `nf-core pipelines lint` |
-| CI + git branches | `*/requirements/ci_testing.md` + `*/requirements/git_branches.md` + `specifications/reviews/*.md` | (check `.github/workflows/` + git branches) |
-| Documentation | `*/requirements/documentation.md` + `*/modules/documentation.md` + `*/subworkflows/documentation.md` | `nf-core pipelines lint` (docs checks) |
-| First release | All pipeline requirements + recommendations + reviews | All: `pipelines lint` + `modules lint` + `subworkflows lint` |
-| Full compliance audit | All `specifications/**/*.md` recursively | All: `pipelines lint` + `modules lint` + `subworkflows lint` + RO-Crate check |
-| All specs | All `specifications/**/*.md` | (depends on task) |
-| 10. CLI reference | `nf-core-tools/*.md` | (reference only) |
-| 11. All specs | All `specifications/**/*.md` | (depends on task) |
-| 12. All docs | All files under docs root | (depends on task) |
-| 13. Index only | None — use index to navigate | None |
-| 14. Custom | Use Grep on index output | (depends on task) |
+| Selection             | Spec files to Read                                                                                   | nf-core tool to run                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Module migration      | `specifications/components/modules/*.md`                                                             | `nf-core modules lint`                                                        |
+| Subworkflow work      | `specifications/components/subworkflows/*.md`                                                        | `nf-core subworkflows lint`                                                   |
+| nf-test coverage      | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md`                | `nf-core modules test`, `nf-core subworkflows test`                           |
+| All component specs   | `specifications/components/**/*.md`                                                                  | `nf-core modules lint` + `nf-core subworkflows lint`                          |
+| Lint fixes            | `*/requirements/linting.md` + `*/requirements/parameters.md`                                         | `nf-core pipelines lint`                                                      |
+| CI + git branches     | `*/requirements/ci_testing.md` + `*/requirements/git_branches.md` + `specifications/reviews/*.md`    | (check `.github/workflows/` + git branches)                                   |
+| Documentation         | `*/requirements/documentation.md` + `*/modules/documentation.md` + `*/subworkflows/documentation.md` | `nf-core pipelines lint` (docs checks)                                        |
+| First release         | All pipeline requirements + recommendations + reviews                                                | All: `pipelines lint` + `modules lint` + `subworkflows lint`                  |
+| Full compliance audit | All `specifications/**/*.md` recursively                                                             | All: `pipelines lint` + `modules lint` + `subworkflows lint` + RO-Crate check |
+| All specs             | All `specifications/**/*.md`                                                                         | (depends on task)                                                             |
+| 10. CLI reference     | `nf-core-tools/*.md`                                                                                 | (reference only)                                                              |
+| 11. All specs         | All `specifications/**/*.md`                                                                         | (depends on task)                                                             |
+| 12. All docs          | All files under docs root                                                                            | (depends on task)                                                             |
+| 13. Index only        | None — use index to navigate                                                                         | None                                                                          |
+| 14. Custom            | Use Grep on index output                                                                             | (depends on task)                                                             |
 
 For API reference lookups, use Glob:
 `~/.cache/nfcore-docs/sites/docs/src/content/api_reference/{version}/`
@@ -361,6 +365,7 @@ The specification content follows after the frontmatter.
 ## Step 4: Apply specs to the current work
 
 After loading the relevant docs:
+
 1. Identify which rules apply to the current task
 2. Check the pipeline's current state against those rules
 3. Flag any violations or missing requirements
@@ -423,13 +428,13 @@ preference. Otherwise, you MUST ask via AskUserQuestion — not plain text.
 Use the Agent tool with `subagent_type: "general-purpose"` and set the
 `model` parameter based on the user's choice (omit for option A).
 
-| Agent | Domain | Specs to include | Tool to reference |
-|-------|--------|-----------------|-------------------|
-| 1 | Pipeline requirements | `specifications/pipelines/requirements/*.md` + `specifications/pipelines/recommendations/*.md` | `nf-core pipelines lint` output |
-| 2 | Module compliance | `specifications/components/modules/*.md` | `nf-core modules lint` output |
-| 3 | Subworkflow compliance | `specifications/components/subworkflows/*.md` | `nf-core subworkflows lint` output |
-| 4 | Documentation & metadata | `specifications/pipelines/requirements/documentation.md`, `*/keywords.md`, `*/ro_crate.md` | README, usage.md, output.md file checks |
-| 5 | Git, CI & reviews | `specifications/pipelines/requirements/git_branches.md`, `*/ci_testing.md`, `specifications/reviews/*.md` | git branch state, `.github/workflows/` |
+| Agent | Domain                   | Specs to include                                                                                          | Tool to reference                       |
+| ----- | ------------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| 1     | Pipeline requirements    | `specifications/pipelines/requirements/*.md` + `specifications/pipelines/recommendations/*.md`            | `nf-core pipelines lint` output         |
+| 2     | Module compliance        | `specifications/components/modules/*.md`                                                                  | `nf-core modules lint` output           |
+| 3     | Subworkflow compliance   | `specifications/components/subworkflows/*.md`                                                             | `nf-core subworkflows lint` output      |
+| 4     | Documentation & metadata | `specifications/pipelines/requirements/documentation.md`, `*/keywords.md`, `*/ro_crate.md`                | README, usage.md, output.md file checks |
+| 5     | Git, CI & reviews        | `specifications/pipelines/requirements/git_branches.md`, `*/ci_testing.md`, `specifications/reviews/*.md` | git branch state, `.github/workflows/`  |
 
 **Agent prompt template** (adapt per agent domain):
 
@@ -479,7 +484,9 @@ for Step D. Do NOT proceed to consolidation until all 5 files are written.
 ```bash
 mkdir -p .nfcore-docs/reports/agents
 ```
+
 Write each agent's **complete, verbatim** output (copy-paste, no editing) to:
+
 - `.nfcore-docs/reports/agents/{date}-agent1-pipeline-requirements.md`
 - `.nfcore-docs/reports/agents/{date}-agent2-module-compliance.md`
 - `.nfcore-docs/reports/agents/{date}-agent3-subworkflow-compliance.md`
@@ -487,6 +494,7 @@ Write each agent's **complete, verbatim** output (copy-paste, no editing) to:
 - `.nfcore-docs/reports/agents/{date}-agent5-git-ci-reviews.md`
 
 This preserves raw findings for:
+
 - Debugging consolidation issues
 - Comparing agent outputs across runs
 - Verifying no findings were lost during deduplication
@@ -496,6 +504,7 @@ If any agent fails or returns an error, note which domain was not audited
 and fall back to sequential evaluation for that domain only.
 
 **Consolidation** (after all 5 raw agent files are saved):
+
 - Collect all findings from all 5 agents — preserve the original text of
   each finding (do not paraphrase or rewrite). Reorganizing and grouping
   is allowed; changing the wording of individual findings is not.
@@ -522,6 +531,7 @@ Build the report dynamically from the spec files read in Step B.
 severity. Severity is a column within each section, not the top-level grouping.
 
 Group into these sections (one per spec directory):
+
 1. `pipelines/requirements/` — Pipeline Requirements
 2. `pipelines/recommendations/` — Pipeline Recommendations
 3. `components/modules/` — Module Compliance
@@ -531,15 +541,17 @@ Group into these sections (one per spec directory):
 
 Within each section, present a table where each row is one spec file:
 
-| Spec file | Title | Status | Severity | Confidence | Notes |
-|-----------|-------|--------|----------|------------|-------|
-| `documentation.md` | Bundled documentation | ✗ | Critical | 10/10 | README is template placeholder |
+| Spec file          | Title                 | Status | Severity | Confidence | Notes                          |
+| ------------------ | --------------------- | ------ | -------- | ---------- | ------------------------------ |
+| `documentation.md` | Bundled documentation | ✗      | Critical | 10/10      | README is template placeholder |
 
 Start the report with:
+
 - Deduplication counts: `Raw findings: N | After dedup: N | Low-confidence appendix: N`
 - Severity summary: `Critical: N | High: N | Medium: N | Low: N`
 
 Include a **Positive Findings** section with:
+
 - Requirements already met (list each with ✓)
 - Good patterns found in the codebase (e.g., proper ext.args usage, clean
   container directives, well-structured channels)
@@ -552,13 +564,14 @@ Include per-module and per-subworkflow tables when relevant.
 
 End with a **Recommended Next Actions** table:
 
-| Priority | Finding | Fix with | Command |
-|----------|---------|----------|---------|
+| Priority | Finding   | Fix with     | Command             |
+| -------- | --------- | ------------ | ------------------- |
 | Critical | {finding} | {what to do} | `nf-core {command}` |
-| High | {finding} | {what to do} | `nf-core {command}` |
-| ... | | | |
+| High     | {finding} | {what to do} | `nf-core {command}` |
+| ...      |           |              |                     |
 
 Common mappings:
+
 - Module structure → `nf-core modules create --empty-template`
 - Missing meta.yml → `nf-core modules create --empty-template`
 - Schema mismatch → `nf-core pipelines schema build`
@@ -573,9 +586,9 @@ compliance, MUST requirements, SHOULD recommendations). Present as:
 
 End with summary counts and this footer:
 
-> *This compliance report is AI-generated and may contain inaccuracies.
+> _This compliance report is AI-generated and may contain inaccuracies.
 > Verify against `nf-core pipelines lint` and the original specifications
-> at https://nf-co.re/docs/specifications/overview*
+> at https://nf-co.re/docs/specifications/overview_
 
 **Step E: Offer to create GitHub issues for findings (optional)**
 
@@ -586,6 +599,7 @@ tool** to offer issue creation. Do NOT output this as plain text — use the too
 > (yes / no / let me pick which ones)
 
 If yes or selective:
+
 1. For each non-compliant item, check for existing issues first:
    ```bash
    gh issue list --search "{requirement keyword}" --state open
@@ -613,6 +627,7 @@ and learnings are local session artifacts, not shared project data.
 
 **Tool crashes vs compliance failures:** If a lint tool crashes (stack trace,
 not a lint failure), do NOT treat the crash as a compliance failure. Instead:
+
 1. Attempt a workaround (e.g., different flags, piping input)
 2. If the workaround succeeds, use the workaround output but note the crash
    in the report under a "Tool Issues" section
@@ -625,6 +640,7 @@ For non-audit work, run only the relevant nf-core tools and load only the
 relevant spec files — not the full `specifications/` tree.
 
 **Delegate to nf-core tools** — never reimplement their functionality:
+
 - Schema work: `nf-core pipelines schema build`
 - RO-Crate: `nf-core pipelines rocrate`
 - Module updates: `nf-core modules update`
@@ -647,6 +663,7 @@ When the user needs to create a new module or subworkflow:
 ## Rules
 
 **NEVER:**
+
 - Report compliance without running the actual nf-core lint tools first
 - Hardcode a list of requirements — always derive from cached spec files
 - Truncate or filter lint/tool output (no head/tail/grep on diagnostics)
@@ -661,39 +678,48 @@ When the user needs to create a new module or subworkflow:
 ## Persistence
 
 **Audit reports:** After producing a compliance report (Step D), save it:
+
 ```bash
 mkdir -p .nfcore-docs/reports
 ```
+
 Write the report to `.nfcore-docs/reports/{date}-compliance.md`. This enables
 trend tracking across audits and cross-session reference.
 
 **Operational learnings:** Before completing, reflect:
+
 - Did any nf-core tools fail unexpectedly?
 - Did a spec interpretation turn out to be wrong?
 - Did the user correct a compliance assessment?
 - Was a spec file missing or outdated?
 
 If yes, log a learning:
+
 ```bash
 mkdir -p .nfcore-docs
 echo '{"ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","context":"WHAT_WAS_BEING_DONE","insight":"WHAT_WAS_LEARNED","confidence":"high|medium|low"}' >> .nfcore-docs/learnings.jsonl
 ```
+
 Only log genuine discoveries. A good test: would knowing this save time in a
 future session? If yes, log it. Don't log transient errors or obvious things.
 
 **Prior learnings:** At skill start (end of Step 1), check for learnings:
+
 ```bash
 if [ -f .nfcore-docs/learnings.jsonl ]; then
   echo "LEARNINGS: $(wc -l < .nfcore-docs/learnings.jsonl | tr -d ' ') entries"
   cat .nfcore-docs/learnings.jsonl
 fi
 ```
+
 Use prior learnings to avoid repeating mistakes from previous sessions.
 
 **Trend tracking:** If a previous report exists, compare against it:
+
 ```bash
 ls -t .nfcore-docs/reports/*.md 2>/dev/null | head -2
 ```
+
 If two or more reports exist, summarize: resolved findings, persistent findings,
 new findings, and overall trend (improving/degrading/stable).
 
@@ -710,6 +736,7 @@ End every skill invocation with a status:
 - **NEEDS_CONTEXT** — Missing information. State exactly what's needed.
 
 If blocked or uncertain after 3 attempts at a step, stop and escalate:
+
 ```
 STATUS: BLOCKED | NEEDS_CONTEXT
 REASON: [1-2 sentences]
