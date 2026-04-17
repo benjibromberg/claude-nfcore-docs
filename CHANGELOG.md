@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 - Automated test infrastructure: `test.sh` runner with two tiers
   - Tier 1: 71 static pytest tests (frontmatter, structure, cross-file consistency,
     bash preamble, python index, cache validation) — no LLM, runs in <1s
-  - Tier 2: 6 E2E tests via `claude -p` from pipeline fixture directories
+  - Tier 2: 18 E2E tests (6 test functions x 3 pipeline fixtures) via `claude -p`
 - Pipeline test fixtures: fetchngs 1.12.0, funcscan 3.0.0, rnaseq 3.24.0 — pinned
   nf-core pipelines covering 3 template eras (pre-3.0, 3.3.x, 3.5.x). See
   `tests/fixtures/README.md` for selection rationale.

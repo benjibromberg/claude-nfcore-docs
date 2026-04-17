@@ -15,7 +15,7 @@ A Claude Code skill (`/nfcore-docs`) that loads nf-core documentation and specif
 - `pyproject.toml` — Consolidated ruff + pytest configuration
 - `.editorconfig` — Editor indent/charset/line-ending conventions
 - `.pre-commit-config.yaml` — 8 pre-commit hooks (prettier, ruff, whitespace, YAML/JSON)
-- `tests/` — Automated test suite (71 static + 6 E2E)
+- `tests/` — Automated test suite (71 static + 18 E2E)
 - `tests/fixtures/` — Pinned nf-core pipeline clones for E2E testing (gitignored)
 
 ## Development
@@ -75,7 +75,7 @@ find ~/.cache/nfcore-docs/sites/docs/src/content/api_reference -name "*.md" | wc
 
 - **Tier 1** (71 static tests): frontmatter, structure, cross-file consistency, bash preamble,
   python index generation, cache validation. Zero dependencies beyond python3.
-- **Tier 2** (6 E2E tests): spawn `claude -p` from pipeline fixture directories, parse NDJSON,
+- **Tier 2** (18 E2E tests): 6 test functions x 3 pipeline fixtures, spawn `claude -p`, parse NDJSON,
   verify tool calls. Uses Max subscription (no API cost). Opt-in via `--e2e`.
 - **Pipeline fixtures**: fetchngs 1.12.0, funcscan 3.0.0, rnaseq 3.24.0 — see `tests/fixtures/README.md`.
 

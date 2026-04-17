@@ -48,6 +48,12 @@ def fixture_available(name):
 DEFAULT_FIXTURE = "fetchngs"
 
 
+def available_fixtures():
+    """Return names of all fixtures that are cloned and ready."""
+    config = load_fixture_config()
+    return [name for name in config if fixture_available(name)]
+
+
 # --- Helpers ---
 
 
