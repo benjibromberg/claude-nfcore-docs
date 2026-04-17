@@ -1,6 +1,6 @@
 # claude-nfcore-docs
 
-A [Claude Code](https://claude.ai/code) skill for loading [nf-core](https://nf-co.re/) documentation and specifications into context. Enables spec-driven development, compliance checking, and auditing for nf-core pipeline projects.
+A [Claude Code](https://claude.ai/code) skill for loading [nf-core](https://nf-co.re/) documentation and specifications into context. Helps Claude write nf-core-compliant code by giving it the actual conventions before it starts writing.
 
 ## What it does
 
@@ -9,13 +9,13 @@ A [Claude Code](https://claude.ai/code) skill for loading [nf-core](https://nf-c
 - Generates a full index of all doc pages with section headers
 - Loads relevant spec files into Claude's context based on your current task
 - Detects if you're in an nf-core pipeline repo and reports pipeline context
-- Cross-references `nf-core pipelines lint` output against specifications
+- Can compare lint output against spec text for context on warnings
 
 ## Install
 
 ### 1. Copy the skill
 
-**Global install** (recommended — available in all projects):
+**Global install** (recommended, available in all projects):
 
 ```bash
 mkdir -p ~/.claude/skills/nfcore-docs
@@ -50,7 +50,7 @@ The cache is shared across all projects. If you skip this step, the skill will a
 
 To avoid being prompted for every file read, add this to your Claude Code settings:
 
-**Global** (`~/.claude/settings.json` — recommended, works across all projects):
+**Global** (`~/.claude/settings.json`, recommended, works across all projects):
 
 ```json
 {
@@ -150,15 +150,15 @@ This skill loads nf-core specifications into Claude's context to improve complia
 
 ## Tests
 
-See [TESTS.md](TESTS.md) for the full test suite (56 tests covering cache management, doc loading, interactive menu, compliance audits, multi-agent review, persistence, and edge cases).
+See [TESTS.md](TESTS.md) for 56 manual tests with copy-paste prompts.
 
 ## Acknowledgements
 
 Built with [Claude Code](https://claude.ai/code). Design patterns adapted from:
 
-- **[gstack](https://github.com/garryslist/gstack)** — completion status protocol, AskUserQuestion format, operational self-improvement, context recovery, escalation rules, confidence calibration, trend tracking (from `/review`, `/cso`, `/health`, `/investigate`, `/checkpoint` skills)
-- **[impeccable](https://github.com/nichochar/impeccable)** — severity classification, positive findings, behavioral guardrails (NEVER rules), action mapping (from `/audit` skill)
-- **Anthropic official plugins** — multi-agent parallel review with confidence filtering, references directory pattern (from `code-review`, `claude-code-setup`, `claude-md-management` plugins)
+- **Anthropic official plugins**: multi-agent parallel review, confidence filtering (`code-review`, `claude-code-setup`)
+- **[impeccable](https://github.com/nichochar/impeccable)**: severity classification, behavioral guardrails
+- **[gstack](https://github.com/garryslist/gstack)**: completion status protocol, operational self-improvement, confidence calibration
 
 nf-core documentation sourced from [nf-core/website](https://github.com/nf-core/website) via sparse git checkout.
 
