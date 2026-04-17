@@ -6,29 +6,35 @@ A Claude Code skill (`/nfcore-docs`) that loads nf-core documentation and specif
 
 ## Files
 
-- `SKILL.md` — The skill prompt file. Installed to `~/.claude/skills/nfcore-docs/SKILL.md`.
-  Keep the installed copy and repo copy in sync.
-- `README.md` — User-facing install and usage docs.
-- `TESTS.md` — 56-test suite with copy-paste prompts for manual testing in Claude Code sessions.
-- `CONTRIBUTING.md` — How to contribute.
-- `CHANGELOG.md` — Version history.
-- `NOTICE.md` — Design pattern attribution.
+- `SKILL.md` — The skill prompt file (installed to `~/.claude/skills/nfcore-docs/SKILL.md`)
+- `README.md` — User-facing install and usage docs
+- `TESTS.md` — 56 manual tests with copy-paste prompts
+- `CONTRIBUTING.md` — How to contribute (linting, pre-commit, PR checklist)
+- `CHANGELOG.md` — Version history
+- `NOTICE.md` — Design pattern attribution
+- `pyproject.toml` — Consolidated ruff + pytest configuration
+- `.editorconfig` — Editor indent/charset/line-ending conventions
+- `.pre-commit-config.yaml` — 8 pre-commit hooks (prettier, ruff, whitespace, YAML/JSON)
+- `tests/` — Automated test suite (71 static + 6 E2E)
+- `tests/fixtures/` — Pinned nf-core pipeline clones for E2E testing (gitignored)
 
 ## Development
 
 ```bash
+# First-time setup
+pre-commit install         # install git hooks
+./tests/fixtures/setup.sh  # clone pipeline fixtures for E2E tests
+
 # Edit the skill
 vim SKILL.md
 
-# Sync to installed location (must stay in sync)
-cp SKILL.md ~/.claude/skills/nfcore-docs/SKILL.md
+# Run tests + lint
+./test.sh                  # 71 static tests (<1s)
+pre-commit run --all-files # all 8 hooks
 
 # Test in a new Claude Code session
-# cd to an nf-core pipeline dir, then:
-# /nfcore-docs
-
-# Run a specific test
-# "Read /path/to/TESTS.md and run Test N"
+cd tests/fixtures/funcscan && claude
+# then: /nfcore-docs
 ```
 
 ## Key Constraints
@@ -67,10 +73,11 @@ find ~/.cache/nfcore-docs/sites/docs/src/content/api_reference -name "*.md" | wc
 ./test.sh --verbose    # Show individual test names
 ```
 
-- **Tier 1** (69 static tests): frontmatter, structure, cross-file consistency, bash preamble,
+- **Tier 1** (71 static tests): frontmatter, structure, cross-file consistency, bash preamble,
   python index generation, cache validation. Zero dependencies beyond python3.
-- **Tier 2** (6 E2E tests): spawn `claude -p --output-format stream-json`, parse NDJSON,
+- **Tier 2** (6 E2E tests): spawn `claude -p` from pipeline fixture directories, parse NDJSON,
   verify tool calls. Uses Max subscription (no API cost). Opt-in via `--e2e`.
+- **Pipeline fixtures**: fetchngs 1.12.0, funcscan 3.0.0, rnaseq 3.24.0 — see `tests/fixtures/README.md`.
 
 ### Manual tests (TESTS.md)
 
@@ -86,4 +93,3 @@ Priority tests for quick validation: 1 (freshness), 10 (full audit), 11 (interac
 ## Issues
 
 Tracked at https://github.com/benjibromberg/claude-nfcore-docs/issues.
-Open issues are testing (#10) and score calibration (#27).
