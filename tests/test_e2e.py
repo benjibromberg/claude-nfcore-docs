@@ -21,7 +21,6 @@ import pytest
 from tests.conftest import (
     available_fixtures,
     get_fixture_path,
-    load_fixture_config,
 )
 
 # Skip entire module if claude CLI is not available
@@ -37,8 +36,6 @@ if not FIXTURES:
         "No pipeline fixtures cloned. Run: ./tests/fixtures/setup.sh",
         allow_module_level=True,
     )
-
-FIXTURE_CONFIG = load_fixture_config()
 
 E2E_TIMEOUT = 300  # seconds per test
 MAX_TURNS = 15
@@ -63,14 +60,15 @@ def run_claude_session(prompt, fixture_name, max_turns=MAX_TURNS, timeout=E2E_TI
         prompt_file = f.name
 
     try:
-        proc = subprocess.run(
-            f'cat "{prompt_file}" | {" ".join(args)}',
-            shell=True,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            cwd=cwd,
-        )
+        with open(prompt_file) as stdin_file:
+            proc = subprocess.run(
+                args,
+                stdin=stdin_file,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                cwd=cwd,
+            )
     finally:
         os.unlink(prompt_file)
 

@@ -81,7 +81,7 @@ pre-commit run --all-files
 ruff check tests/ && ruff format --check tests/
 ```
 
-CI also enforces ruff via `astral-sh/ruff-action@v4` — PRs will fail if ruff reports any issues.
+CI also enforces ruff via `astral-sh/ruff-action@v3` — PRs will fail if ruff reports any issues.
 
 ## Pull requests
 
