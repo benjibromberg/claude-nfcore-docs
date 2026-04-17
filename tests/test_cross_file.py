@@ -66,7 +66,7 @@ def test_test_count_in_readme_md():
     """README.md test count matches TESTS.md actual count."""
     actual = count_test_headings(TESTS_MD)
     content = read_file(README_MD)
-    match = re.search(r"(\d+)\s+tests", content)
+    match = re.search(r"(\d+) manual tests", content)
     assert match, "No test count found in README.md"
     stated = int(match.group(1))
     assert stated == actual, f"README.md says {stated} tests but TESTS.md has {actual}"
