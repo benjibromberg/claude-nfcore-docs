@@ -1,39 +1,46 @@
 # Test Suite
 
 Each test includes a **Prompt** you can paste into a new Claude Code session to run it.
-Most tests require being in an nf-core pipeline directory (e.g., `plantmine/`) unless noted otherwise.
+Most tests require being in an nf-core pipeline directory unless noted otherwise.
 
 To run a test: `Read /path/to/TESTS.md and run Test N`
 
+56 tests total. Tests 51-56 added in v1.0.1 for audit execution guardrails.
+
 ## Coverage Map
 
-| Feature | Tests |
-|---------|-------|
-| Cache management (freshness, stale, auto-setup) | 1, 8, 9, 28 |
-| Doc loading (specs, modules, subworkflows, CI, API) | 2, 3, 5, 6, 7, 20, 23, 24 |
-| Interactive menu (options, re-invocation, custom, mixed) | 11, 12, 27, 32, 33 |
-| Full compliance audit (lint, cross-reference, report) | 4, 10, 15, 22, 29, 30, 31 |
-| Severity and confidence scoring | 15, 29 |
-| GitHub issue creation from audit | 16, 26 |
-| Module/subworkflow creation workflow | 14 |
-| NEVER rules enforcement | 18 |
-| Completion status protocol | 17, 25 |
-| Accuracy disclaimer | 19 |
-| Non-pipeline usage | 21 |
-| Compliance score (0-10) | 34, 42 |
-| Persistence — audit reports | 35, 38, 41 |
-| Persistence — operational learnings | 36, 37, 39, 40 |
-| Trend tracking across audits | 38 |
-| Dependency checking | 43 |
-| Multi-agent audit (model selection, findings, dedup) | 44, 45, 46, 50 |
-| Issue creation (grouping, crash handling) | 47, 48 |
-| Gitignore guidance | 49 |
+| Feature                                                  | Tests                         |
+| -------------------------------------------------------- | ----------------------------- |
+| Cache management (freshness, stale, auto-setup)          | 1, 8, 9, 28                   |
+| Doc loading (specs, modules, subworkflows, CI, API)      | 2, 3, 5, 6, 7, 20, 23, 24     |
+| Interactive menu (options, re-invocation, custom, mixed) | 11, 12, 27, 32, 33            |
+| Full compliance audit (lint, cross-reference, report)    | 4, 10, 13, 15, 22, 29, 30, 31 |
+| Severity and confidence scoring                          | 15, 29                        |
+| GitHub issue creation from audit                         | 16, 26                        |
+| Module/subworkflow creation workflow                     | 14                            |
+| NEVER rules enforcement                                  | 18                            |
+| Completion status protocol                               | 17, 25                        |
+| Accuracy disclaimer                                      | 19                            |
+| Non-pipeline usage                                       | 21                            |
+| Compliance score (0-10)                                  | 34, 42                        |
+| Persistence — audit reports                              | 35, 38, 41                    |
+| Persistence — operational learnings                      | 36, 37, 39, 40                |
+| Trend tracking across audits                             | 38                            |
+| Dependency checking                                      | 43                            |
+| Multi-agent audit (model selection, findings, dedup)     | 44, 45, 46, 50                |
+| Issue creation (grouping, crash handling)                | 47, 48                        |
+| Gitignore guidance                                       | 49                            |
+| AskUserQuestion tool enforcement                         | 51, 52, 53                    |
+| Agent report save ordering                               | 54                            |
+| Report format (spec-directory grouping)                  | 55                            |
+| Tool crash workaround flow                               | 56                            |
 
 ---
 
 ## Test 1: Freshness check
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. When it asks what to load, select "13" (just use the index). Report the freshness status from the preamble output.
 ```
@@ -45,6 +52,7 @@ Run /nfcore-docs. When it asks what to load, select "13" (just use the index). R
 ## Test 2: Module spec loading
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 1 (module migration). After loading the module specs, tell me the first 3 MUST requirements from general.md.
 ```
@@ -56,6 +64,7 @@ Run /nfcore-docs. Select option 1 (module migration). After loading the module s
 ## Test 3: CI testing requirements
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 5 (CI setup). What does nf-core require for CI testing?
 ```
@@ -67,6 +76,7 @@ Run /nfcore-docs. Select option 5 (CI setup). What does nf-core require for CI t
 ## Test 4: Lint cross-reference
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). Run all lint tools and cross-reference each warning/failure against the spec files. Classify each by MUST vs SHOULD.
 ```
@@ -78,6 +88,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). Run all lint tools an
 ## Test 5: Git branch compliance
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 8 (git/branch model). Load the git branches spec and verify this pipeline's branch model is compliant.
 ```
@@ -89,6 +100,7 @@ Run /nfcore-docs. Select option 8 (git/branch model). Load the git branches spec
 ## Test 6: API reference lookup
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 13 (index only). Then ask: find the API reference for nf-core tools 3.5.2 and list what lint tests are documented.
 ```
@@ -100,6 +112,7 @@ Run /nfcore-docs. Select option 13 (index only). Then ask: find the API referenc
 ## Test 7: Subworkflow specs
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 2 (subworkflow restructure). Summarize all MUST and SHOULD requirements for subworkflows.
 ```
@@ -111,6 +124,7 @@ Run /nfcore-docs. Select option 2 (subworkflow restructure). Summarize all MUST 
 ## Test 8: Stale cache trigger
 
 **Prompt:**
+
 ```
 First run this bash command to backdate the cache:
 touch -t $(date -v-48H +%Y%m%d%H%M.%S) ~/.cache/nfcore-docs/.git/FETCH_HEAD
@@ -125,6 +139,7 @@ Then run /nfcore-docs. Select option 13 (index only). Report whether it triggere
 ## Test 9: Missing cache auto-setup
 
 **Prompt:**
+
 ```
 First run: mv ~/.cache/nfcore-docs ~/.cache/nfcore-docs-backup
 
@@ -139,11 +154,13 @@ rm -rf ~/.cache/nfcore-docs && mv ~/.cache/nfcore-docs-backup ~/.cache/nfcore-do
 ## Test 10: Full compliance audit
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). Produce the full report. I want to see: severity summary, positive findings, recommended next actions table, and the accuracy disclaimer.
 ```
 
 **Expected:**
+
 - Runs `nf-core pipelines lint`, `nf-core modules lint`, `nf-core subworkflows lint`
 - Checks for `ro-crate-metadata.json`
 - Reads all spec files under `specifications/` recursively
@@ -158,6 +175,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). Produce the full repo
 ## Test 11: Interactive menu
 
 **Prompt:**
+
 ```
 Run /nfcore-docs
 ```
@@ -169,6 +187,7 @@ Run /nfcore-docs
 ## Test 12: Session re-invocation
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 13 (index only).
 Then run /nfcore-docs again. Does it skip the preamble?
@@ -181,6 +200,7 @@ Then run /nfcore-docs again. Does it skip the preamble?
 ## Test 13: Targeted module check
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 1 (module migration). After loading specs, run nf-core modules lint and cross-reference the output against the loaded module specs.
 ```
@@ -192,11 +212,13 @@ Run /nfcore-docs. Select option 1 (module migration). After loading specs, run n
 ## Test 14: Module creation workflow
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. I need to create a new local module for a tool called "mytool". Walk me through the process.
 ```
 
 **Expected:**
+
 1. Checks `nf-core modules list remote` for existing module
 2. Suggests `nf-core modules create --empty-template` if not found
 3. Loads module specs into context
@@ -207,11 +229,13 @@ Run /nfcore-docs. I need to create a new local module for a tool called "mytool"
 ## Test 15: Severity and confidence in audit
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). For each finding in the report, I want to see both severity (Critical/High/Medium/Low) AND confidence (N/10). Show me findings across all confidence levels.
 ```
 
 **Expected:** Each finding includes:
+
 - Severity: Critical/High/Medium/Low (mapped from MUST/SHOULD/MAY)
 - Confidence: N/10 with appropriate display rules
 - Findings with confidence < 4 are flagged or excluded from main report
@@ -221,6 +245,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). For each finding in t
 ## Test 16: Issue creation from audit
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). After the report, when asked about creating issues, select "let me pick which ones."
 ```
@@ -232,6 +257,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). After the report, whe
 ## Test 17: Completion status
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 4 (lint fixes). Load the specs, run pipelines lint, and cross-reference. What status do you end with?
 ```
@@ -243,6 +269,7 @@ Run /nfcore-docs. Select option 4 (lint fixes). Load the specs, run pipelines li
 ## Test 18: NEVER rules enforcement
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Tell me if this pipeline is nf-core compliant WITHOUT running any lint tools. Just guess based on the file structure.
 ```
@@ -254,6 +281,7 @@ Run /nfcore-docs. Tell me if this pipeline is nf-core compliant WITHOUT running 
 ## Test 19: Accuracy disclaimer
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 4 (lint fixes). Run lint and produce a compliance check. Does the output include an accuracy disclaimer?
 ```
@@ -265,6 +293,7 @@ Run /nfcore-docs. Select option 4 (lint fixes). Run lint and produce a complianc
 ## Test 20: Index covers all doc categories
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 13 (index only). Does the index include files from ALL these categories: community, contributing, developing, get_started, nf-core-tools, running, specifications? Also check that API reference is listed.
 ```
@@ -276,6 +305,7 @@ Run /nfcore-docs. Select option 13 (index only). Does the index include files fr
 ## Test 21: Non-pipeline directory
 
 **Prompt (run from home directory, NOT a pipeline):**
+
 ```
 cd ~ && Run /nfcore-docs. Select option 13 (index only). Does it work without a pipeline?
 ```
@@ -287,6 +317,7 @@ cd ~ && Run /nfcore-docs. Select option 13 (index only). Does it work without a 
 ## Test 22: Lint cache bug workaround
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). Check: does it clear ~/.config/nfcore/nf-core/modules/ before running lint?
 ```
@@ -298,6 +329,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). Check: does it clear 
 ## Test 23: Load all specs context cost
 
 **Prompt:**
+
 ```
 Run /context first to get baseline.
 Then run /nfcore-docs. Select option 11 (load all specs).
@@ -311,6 +343,7 @@ Then run /context again. How many tokens did the specs consume?
 ## Test 24: Load all docs context cost
 
 **Prompt:**
+
 ```
 Run /context first to get baseline.
 Then run /nfcore-docs. Select option 12 (load all docs).
@@ -324,6 +357,7 @@ Then run /context again. How many tokens did all docs consume?
 ## Test 25: Escalation after repeated failure
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). Before running lint, temporarily rename nf-core:
 sudo mv $(which nf-core) $(which nf-core).bak
@@ -339,6 +373,7 @@ sudo mv $(which nf-core).bak $(which nf-core)
 ## Test 26: Duplicate issue detection
 
 **Prompt:**
+
 ```
 First create a test issue: gh issue create --title "chore(compliance): Docker Support" --body "test"
 Then run /nfcore-docs. Select option 6 (full compliance audit). When asked about creating issues, say yes. Does it detect the existing Docker issue?
@@ -352,6 +387,7 @@ Clean up: gh issue close <number> after testing.
 ## Test 27: Custom file request (option 14)
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 14 (something else). Say: "Show me the release procedure documentation."
 ```
@@ -363,6 +399,7 @@ Run /nfcore-docs. Select option 14 (something else). Say: "Show me the release p
 ## Test 28: Stale cache update preserves structure
 
 **Prompt:**
+
 ```
 First backdate: touch -t $(date -v-48H +%Y%m%d%H%M.%S) ~/.cache/nfcore-docs/.git/FETCH_HEAD
 Then run /nfcore-docs. Select option 13 (index only).
@@ -376,11 +413,13 @@ Does the index regenerate correctly after the update? Any missing categories?
 ## Test 29: Severity mapping accuracy
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Load specifications/pipelines/requirements/git_branches.md. This file contains MUST, SHOULD, and MAY statements. Now run an audit of just the git branch model. Are the severity levels correctly mapped?
 ```
 
 **Expected:**
+
 - MUST violations → Critical
 - SHOULD gaps → High
 - MAY suggestions → Medium
@@ -391,6 +430,7 @@ Run /nfcore-docs. Load specifications/pipelines/requirements/git_branches.md. Th
 ## Test 30: Positive findings completeness
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). In the positive findings section, does each finding reference a specific spec file? Are they specific (e.g., "MIT license present") or vague (e.g., "some requirements met")?
 ```
@@ -402,6 +442,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). In the positive findi
 ## Test 31: Action mapping specificity
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). In the recommended next actions table, is every command copy-pasteable? Any generic advice like "fix this" without a specific command?
 ```
@@ -413,6 +454,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). In the recommended ne
 ## Test 32: Mixed intent detection
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. I need help with module migration and also want to check CI compliance. Load both sets of docs and run both checks.
 ```
@@ -424,6 +466,7 @@ Run /nfcore-docs. I need help with module migration and also want to check CI co
 ## Test 33: Index-only mode
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 13 (just use the index). Then ask: "What docs exist about testing?" Answer from the index without reading any spec files.
 ```
@@ -435,6 +478,7 @@ Run /nfcore-docs. Select option 13 (just use the index). Then ask: "What docs ex
 ## Test 34: Compliance score
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). Does the report include a compliance score (0-10) with per-category breakdown?
 ```
@@ -446,6 +490,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). Does the report inclu
 ## Test 35: Audit report persistence
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). After the report, check: was it saved to .nfcore-docs/reports/?
 ls .nfcore-docs/reports/ 2>/dev/null
@@ -458,6 +503,7 @@ ls .nfcore-docs/reports/ 2>/dev/null
 ## Test 36: Operational learning logged
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). After the audit, does the skill reflect on what happened and log any learnings? Check:
 cat .nfcore-docs/learnings.jsonl 2>/dev/null
@@ -470,6 +516,7 @@ cat .nfcore-docs/learnings.jsonl 2>/dev/null
 ## Test 37: Prior learnings loaded on start
 
 **Prompt:**
+
 ```
 First, manually create a test learning:
 mkdir -p .nfcore-docs && echo '{"ts":"2026-04-16","context":"testing","insight":"nf-core tools 3.5.2 cache bug requires rm -rf before lint","confidence":"high"}' > .nfcore-docs/learnings.jsonl
@@ -485,6 +532,7 @@ Clean up: rm -rf .nfcore-docs/learnings.jsonl
 ## Test 38: Trend tracking across audits
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit) and complete it.
 Then run /nfcore-docs again. Select option 6 again for a second audit.
@@ -498,6 +546,7 @@ Does the second audit compare against the first and show a trend?
 ## Test 39: Learnings have correct fields
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). After completion, check:
 cat .nfcore-docs/learnings.jsonl 2>/dev/null | python3 -c "import json,sys; [print(sorted(json.loads(l).keys())) for l in sys.stdin]"
@@ -510,6 +559,7 @@ cat .nfcore-docs/learnings.jsonl 2>/dev/null | python3 -c "import json,sys; [pri
 ## Test 40: Empty learnings file handled gracefully
 
 **Prompt:**
+
 ```
 mkdir -p .nfcore-docs && touch .nfcore-docs/learnings.jsonl
 Run /nfcore-docs. Select option 13 (index only). Does the preamble handle an empty learnings file without errors?
@@ -523,6 +573,7 @@ Clean up: rm .nfcore-docs/learnings.jsonl
 ## Test 41: No report directory yet
 
 **Prompt:**
+
 ```
 Make sure .nfcore-docs/reports/ does not exist:
 rm -rf .nfcore-docs/reports/
@@ -537,6 +588,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). Does it create the di
 ## Test 42: Compliance score reflects actual state
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). If lint shows 0 failures, does the compliance score reflect that (high score)? If there are many warnings, is the score lower than 10?
 ```
@@ -548,6 +600,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). If lint shows 0 failu
 ## Test 43: Dependency check in preamble
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 13 (index only). Does the preamble output show a "Dependencies" section listing git, python3, nf-core, and gh with their versions or "not found"?
 ```
@@ -559,6 +612,7 @@ Run /nfcore-docs. Select option 13 (index only). Does the preamble output show a
 ## Test 44: Multi-agent model selection
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). When asked to choose a model for the agents, does it offer A) Inherit, B) Haiku, C) Sonnet, D) Opus?
 ```
@@ -570,6 +624,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). When asked to choose 
 ## Test 45: Agent findings saved to disk
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). After the audit completes, check:
 ls .nfcore-docs/reports/agents/ 2>/dev/null
@@ -582,6 +637,7 @@ ls .nfcore-docs/reports/agents/ 2>/dev/null
 ## Test 46: Deduplication counting
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). In the consolidated report, does it mention how many findings pre- and post-deduplication? (e.g., "42 findings from 5 agents → 35 after deduplication")
 ```
@@ -593,6 +649,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). In the consolidated r
 ## Test 47: Issue grouping
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). When offered to create issues, does it group related findings? (e.g., all module structure issues into one issue, not 16 separate ones)
 ```
@@ -604,6 +661,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). When offered to creat
 ## Test 48: Tool crash vs compliance failure
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). If nf-core modules lint crashes (not a compliance failure, but an actual error/stack trace), does the skill report BLOCKED for that domain rather than treating it as a compliance failure?
 ```
@@ -615,6 +673,7 @@ Run /nfcore-docs. Select option 6 (full compliance audit). If nf-core modules li
 ## Test 49: Gitignore suggestion
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). After persisting the report to .nfcore-docs/, does the skill suggest adding .nfcore-docs/ to .gitignore?
 ```
@@ -626,8 +685,82 @@ Run /nfcore-docs. Select option 6 (full compliance audit). After persisting the 
 ## Test 50: No agent result summarization
 
 **Prompt:**
+
 ```
 Run /nfcore-docs. Select option 6 (full compliance audit). After agents return, does the consolidated report include ALL findings from every agent? Are any findings missing compared to the raw agent files in .nfcore-docs/reports/agents/?
 ```
 
 **Expected:** Every finding from every agent appears in the consolidated report (main report or appendix). No findings silently dropped. Cross-reference against raw agent files to verify.
+
+---
+
+## Test 51: CLAUDE_MD_REF uses AskUserQuestion tool
+
+**Prompt:**
+
+```
+Run /nfcore-docs. The preamble will report CLAUDE_MD_REF status. If it reports "missing", does the skill use the AskUserQuestion TOOL (not plain text) to ask about adding a reference?
+```
+
+**Expected:** If CLAUDE_MD_REF is `missing`, skill uses the AskUserQuestion tool with options for adding a reference to CLAUDE.md vs declining. Does NOT output the question as plain text. Does NOT silently skip the step.
+
+---
+
+## Test 52: Model selection uses AskUserQuestion tool
+
+**Prompt:**
+
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). When the model selection question appears, verify it uses the AskUserQuestion TOOL (not plain text output). Select "Inherit from current session."
+```
+
+**Expected:** AskUserQuestion tool is used with 4 model options (Inherit/Haiku/Sonnet/Opus). Not presented as plain text in the conversation.
+
+---
+
+## Test 53: Issue creation uses AskUserQuestion tool
+
+**Prompt:**
+
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After the report, verify the issue creation offer uses the AskUserQuestion TOOL (not plain text).
+```
+
+**Expected:** AskUserQuestion tool with options for yes/no/selective issue creation. Not presented as inline text.
+
+---
+
+## Test 54: Agent reports saved BEFORE consolidation
+
+**Prompt:**
+
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). After agents return, check: are all 5 raw agent files written to .nfcore-docs/reports/agents/ BEFORE the consolidated report appears?
+ls .nfcore-docs/reports/agents/
+```
+
+**Expected:** All 5 files exist with names matching `{date}-agent{N}-{domain}.md`. Files are written immediately after agents return, before any consolidation text appears. Each file contains the agent's complete verbatim output.
+
+---
+
+## Test 55: Report organized by spec directory
+
+**Prompt:**
+
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). In the compliance report, is the PRIMARY organization by spec directory (pipelines/requirements, components/modules, etc.) or by severity level (Critical, High, Medium, Low)?
+```
+
+**Expected:** Report sections are grouped by spec directory (e.g., "Pipeline Requirements", "Module Compliance", "Subworkflow Compliance"). Each section contains a table where each row is one spec file with columns for Title, Status, Severity, Confidence, and Notes. Severity is a column within the table, NOT the top-level grouping.
+
+---
+
+## Test 56: Tool crash workaround flow
+
+**Prompt:**
+
+```
+Run /nfcore-docs. Select option 6 (full compliance audit). If nf-core modules lint crashes with a TUI error, does the skill: (1) attempt a workaround, (2) note the crash in the report, (3) log it as a learning? Does it use DONE_WITH_CONCERNS (not DONE) as the completion status?
+```
+
+**Expected:** Skill attempts a workaround (e.g., `--all` flag or piping input). If workaround succeeds, uses the workaround output but notes the crash in a "Tool Issues" section. Logs the crash as an operational learning. Uses DONE_WITH_CONCERNS completion status (not DONE).

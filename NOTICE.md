@@ -8,6 +8,7 @@ Copyright 2026 Benji Bromberg
 This skill adapts design patterns from the following projects:
 
 ### gstack
+
 **Source:** https://github.com/nichochar/gstack
 **Author:** Garry Tan / gstack contributors
 **License:** MIT
@@ -16,6 +17,7 @@ self-improvement, context recovery, escalation rules, completeness principle,
 confidence calibration, trend tracking, repo ownership model
 
 ### impeccable
+
 **Source:** https://github.com/nichochar/impeccable
 **Author:** Paul Bakaus
 **License:** Apache 2.0
@@ -23,6 +25,7 @@ confidence calibration, trend tracking, repo ownership model
 behavioral guardrails (NEVER rules), action mapping to tools
 
 ### Anthropic Official Plugins
+
 **Source:** https://github.com/anthropics/claude-code (plugins)
 **Author:** Anthropic, PBC
 **License:** Apache 2.0

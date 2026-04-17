@@ -27,14 +27,14 @@ changes are live immediately.
 
 ## Testing
 
-50 tests in [TESTS.md](TESTS.md). Each has a copy-paste prompt for manual testing.
+56 tests in [TESTS.md](TESTS.md). Each has a copy-paste prompt for manual testing.
 
 ```
 # In a Claude Code session from an nf-core pipeline directory:
 Read /path/to/claude-nfcore-docs/TESTS.md and run Test N
 ```
 
-Run the full test suite by working through all 50 tests. Priority tests for
+Run the full test suite by working through all 56 tests. Priority tests for
 quick validation: 1 (freshness), 10 (full audit), 11 (interactive menu),
 18 (NEVER rules), 43 (dependencies).
 
@@ -57,9 +57,36 @@ Read the CLAUDE.md for full constraints. The critical ones:
 - **Keep the installed copy in sync** — if you edit SKILL.md, the installed copy at
   `~/.claude/skills/nfcore-docs/SKILL.md` must match
 
+## Linting & pre-commit
+
+All Python code must pass [ruff](https://docs.astral.sh/ruff/) lint and format checks.
+Configuration is in `pyproject.toml` (excludes fixture pipelines).
+
+Set up pre-commit hooks to enforce this automatically on every commit:
+
+```bash
+pip install pre-commit   # if not already installed
+pre-commit install       # installs git hooks
+```
+
+After this, every `git commit` will automatically run ruff lint, ruff format,
+trailing whitespace checks, and YAML/JSON validation. If any hook fails, the
+commit is blocked until you fix the issue.
+
+```bash
+# Run all hooks manually (without committing)
+pre-commit run --all-files
+
+# Or run ruff directly
+ruff check tests/ && ruff format --check tests/
+```
+
+CI also enforces ruff via `astral-sh/ruff-action@v3` — PRs will fail if ruff reports any issues.
+
 ## Pull requests
 
 - One feature or fix per PR
+- Run `ruff check` and `ruff format` before pushing
 - Update TESTS.md if adding testable behavior
 - Update CLAUDE.md if changing constraints or architecture
 - Test your changes by actually using `/nfcore-docs` in a real session

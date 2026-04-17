@@ -1,0 +1,8 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Pipeline fixtures (cloned by tests/fixtures/setup.sh, ~50MB total)
+tests/fixtures/fetchngs/
+tests/fixtures/funcscan/
+tests/fixtures/rnaseq/

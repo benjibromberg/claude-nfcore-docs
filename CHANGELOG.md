@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-04-17
+
+### Added
+
+- Automated test infrastructure: `test.sh` runner with two tiers
+  - Tier 1: 71 static pytest tests (frontmatter, structure, cross-file consistency,
+    bash preamble, python index, cache validation) — no LLM, runs in <1s
+  - Tier 2: 18 E2E tests (6 test functions x 3 pipeline fixtures) via `claude -p`
+- Pipeline test fixtures: fetchngs 1.12.0, funcscan 3.0.0, rnaseq 3.24.0 — pinned
+  nf-core pipelines covering 3 template eras (pre-3.0, 3.3.x, 3.5.x). See
+  `tests/fixtures/README.md` for selection rationale.
+- GitHub Actions CI: static tests + ruff lint/format via `astral-sh/ruff-action@v3`
+- Pre-commit hooks (8 hooks): prettier, trailing-whitespace, end-of-file, check-yaml,
+  check-json, check-merge-conflict, ruff lint, ruff format
+- `pyproject.toml`: consolidated ruff + pytest configuration
+- `.editorconfig`: UTF-8, LF, consistent indent (4-space default, 2 for md/yml/json)
+- `.prettierignore`: excludes fixture pipelines from formatting
+- GitHub issue templates (bug report, feature request), PR template with checklist
+- `CODEOWNERS`: @benjibromberg on all PRs
+- 6 new manual tests in TESTS.md (Tests 51-56) for audit execution guardrails
+- "General principle: ask the user" section at top of SKILL.md — use AskUserQuestion
+  proactively throughout for judgment calls, ambiguity, and clarification
+- Git/review specs auto-loaded before menu (always relevant, small cost)
+- Comprehensive orient message showing all 7 doc categories with file counts before menu
+- "Load into context" menu option with specs-only vs everything follow-up
+
+### Changed
+
+- Menu redesigned as tiered AskUserQuestion (max 4 options per tool call):
+  Tier 1: Component work / Full audit / Pipeline requirements / Load into context
+  Tier 2: drill-down for components, pipeline areas, or load scope
+- CLAUDE_MD_REF `no_file` now MUST use AskUserQuestion (was silently skipped)
+- Moved ruff config from standalone `ruff.toml` to `pyproject.toml`
+
+### Fixed
+
+- AskUserQuestion tool enforcement at all 3 interactive checkpoints
+- Raw agent report saving as blocking prerequisite before consolidation
+- Report format: primary organization by spec directory, not severity
+- Consolidation: preserve finding text, reorganizing OK, paraphrasing not
+- Dedup checkpoint with pre/post counts in report header
+- Low-confidence appendix for confidence < 4 findings
+- Tool crash: 4-step workaround flow replaces binary BLOCKED
+- DONE_WITH_CONCERNS covers any tool crash, even if worked around
+- Model selection: MAY skip if user pre-specified in message
+- Stale test counts in CONTRIBUTING.md (50→56) and README.md (50→56)
+- TESTS.md coverage map missing Test 13
+- Unused imports and ambiguous variable names across test modules
+
 ## [1.0.0] - 2026-04-16
 
 ### Added
