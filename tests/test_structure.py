@@ -49,10 +49,23 @@ def test_has_completion_section():
 
 # --- Menu options ---
 
-def test_has_14_menu_options():
+def test_has_tiered_menu():
     c = _content()
-    for i in range(1, 15):
-        assert f"{i}." in c, f"Missing menu option {i}"
+    # Tier 1 top-level options
+    assert "Component work" in c
+    assert "Full compliance audit" in c
+    assert "Pipeline requirements" in c
+    assert "Load into context" in c
+    # Tier 2 follow-ups
+    assert "Module migration" in c
+    assert "Subworkflow restructure" in c
+
+
+def test_git_review_specs_always_loaded():
+    c = _content()
+    assert "Always load first" in c or "always load" in c.lower()
+    assert "git_branches.md" in c
+    assert "reviews" in c.lower()
 
 
 def test_has_context_budget_table():
@@ -94,6 +107,12 @@ def test_has_accuracy_disclaimer():
 
 
 # --- v1.0.1 guardrails ---
+
+def test_has_general_ask_principle():
+    c = _content()
+    assert "General principle" in c or "ask the user" in c.lower()
+    assert "judgment call" in c.lower() or "ambiguity" in c.lower()
+
 
 def test_has_askuserquestion_enforcement():
     c = _content()

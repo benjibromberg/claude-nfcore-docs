@@ -20,6 +20,21 @@ allowed-tools:
 
 # nf-core Documentation Loader
 
+## General principle: ask the user
+
+Use AskUserQuestion throughout this skill — not just at the explicit
+checkpoints listed below. When you face a judgment call, ambiguity, or
+a decision with trade-offs, ask the user rather than guessing. Examples:
+
+- Unsure which spec area is relevant? Ask.
+- Multiple valid approaches to loading docs? Ask which the user prefers.
+- A finding could be interpreted multiple ways? Ask for clarification.
+- The user's request doesn't map cleanly to a menu option? Ask what they need.
+
+The AskUserQuestion tool supports **2-4 options** (plus an automatic "Other"
+write-in). For broader choices, use a **tiered approach**: ask a high-level
+question first, then drill down with a follow-up question.
+
 ## Step 0: Check read permissions
 
 This skill reads many files from `~/.cache/nfcore-docs/`. To avoid being prompted
@@ -176,10 +191,18 @@ if [ -f "nextflow.config" ] && grep -q "nf-core\|nf_core" nextflow.config 2>/dev
 fi
 ```
 
-If `CLAUDE_MD_REF` is `no_file`, suggest the user run `/init` to create a
-CLAUDE.md for their project first, then extend it with
-`/claude-md-management:claude-md-improver`. After CLAUDE.md exists, re-run
-`/nfcore-docs` to add the nf-core docs reference.
+If `CLAUDE_MD_REF` is `no_file`, you **MUST** use the **AskUserQuestion tool**
+to ask whether the user wants to create a CLAUDE.md first:
+
+> This project has no CLAUDE.md. Creating one helps Claude understand your
+> pipeline across sessions. You can set one up with `/init`, then enrich it
+> with `/claude-md-management:claude-md-improver`.
+>
+> A) Create CLAUDE.md now (pause /nfcore-docs, run /init first)
+> B) Skip — continue without CLAUDE.md
+
+⚠️ Do NOT skip this step or make the decision yourself. Even for test
+directories or fixtures, the user decides. Do NOT output as plain text.
 
 If `CLAUDE_MD_REF` is `missing` (CLAUDE.md exists but no nfcore-docs mention),
 you **MUST** use the **AskUserQuestion tool** (not plain text output) to ask:
@@ -215,41 +238,86 @@ You can already answer "what docs exist about X?" from the index alone.
 If the user's intent is clear from their message (e.g., "load module specs",
 "check CI compliance"), skip the prompt and load the relevant files directly.
 
-If the user's intent is ambiguous (e.g., just `/nfcore-docs` with no context),
+**Always load first (before asking):** Read the git/review specs automatically —
+they're relevant to any contribution and small enough to always include:
+- `specifications/pipelines/requirements/git_branches.md`
+- `specifications/reviews/*.md` (commit strategy, rapid merge, request reviewers, review scope)
+
+Then, if the user's intent is ambiguous (e.g., just `/nfcore-docs` with no context),
 use AskUserQuestion. Follow this structure for ALL AskUserQuestion calls:
 
 1. **Re-ground** — State the pipeline (if detected) and current branch (1 sentence)
-2. **Context** — What's already loaded (index, specs, etc.)
+2. **Context** — What's already loaded (index + git/review specs)
 3. **Recommend** — If one option is clearly best for the context, say so
-4. **Options** — Lettered/numbered list
+4. **Options** — Use the AskUserQuestion tool (max 4 options + write-in)
 
-Ask:
+⚠️ AskUserQuestion supports a maximum of 4 options. The user always gets an
+additional "Other" write-in option automatically. Do NOT try to present more
+than 4 options — the tool will reject it.
 
-> The nf-core docs index is now loaded (172 pages with section headers).
-> I can navigate any topic from the index. Want me to load the full text
-> of specific sections into context?
+Before asking, briefly orient the user on what's available. Output something like:
+
+> The nf-core docs cache has **172 files** across 7 categories:
+> - **Specifications** (56 files) — pipeline requirements and recommendations, module/subworkflow
+>   conventions, test data standards, review/merge guidelines, VIPs
+> - **Developing** (37 files) — component creation (ext.args, meta maps, cross-org),
+>   containers (ARM64, Seqera), nf-test assertions, template syncs, migration guides
+>   (strict syntax, topic channels), institutional profiles, release procedure,
+>   documentation style (Harshil alignment), external use
+> - **nf-core tools** (34 files) — CLI reference: modules (create/install/lint/update/patch),
+>   subworkflows, pipelines (lint/schema/download/launch/sync/rocrate), test-datasets, TUI
+> - **Community** (13 files) — governance, branding (logos/colours/fonts), regulatory
+>   validation, advisories, terminology
+> - **Contributing** (12 files) — adding pipelines/components, contributor types,
+>   reviewing PRs (checklists for components, pipelines, tools), nf-core-bot commands
+> - **Get started** (10 files) — what is nf-core, environment setup, installing Nextflow,
+>   software dependencies (Docker/Singularity/Conda), dev containers, VS Code, Prettier
+> - **Running** (10 files) — running pipelines, configuration, reference genomes,
+>   troubleshooting, offline use, Google Colab, managing work directory growth
 >
-> 1. Module migration — module structure, naming, ext.args, meta.yml (9 files)
-> 2. Subworkflow restructure — conventions, I/O, naming (7 files)
-> 3. nf-test coverage — testing specs for modules, subworkflows, pipelines (3 files)
-> 4. Lint fixes — linting rules, parameter conventions (2 files)
-> 5. CI setup — GitHub Actions, test profiles (1 file)
-> 6. Full compliance audit — all pipeline requirements + recommendations (28 files)
-> 7. Documentation — README, usage.md, output.md, module docs (3 files)
-> 8. Git/branch model — branch naming, reviews, merge strategy (6 files)
-> 9. First release prep — all requirements + recommendations + reviews (33 files)
-> 10. nf-core CLI reference — tools docs (~40 files)
-> 11. Load all specs — 56 spec files (~60K tokens, 6% of 1M context)
-> 12. Load all docs — all 172 files (~275K tokens, 28% of 1M context)
-> 13. Just use the index — don't load anything else yet, I'll ask for specific files
-> 14. Something else — describe what you need
+> Git/review specs are already loaded. What would you like to do?
+
+Then use AskUserQuestion:
+
+**Tier 1: Top-level menu** (first AskUserQuestion call):
+
+> A) Component work — module/subworkflow specs for migration, restructure, testing
+> B) Full compliance audit — all specs + lint tools + parallel agents
+> C) Pipeline requirements — CI, docs, parameters, linting, first release
+> D) Load into context — load specs or all docs as a reference library, no audit
+
+The write-in "Other" covers: CLI reference, just the index, custom requests.
+
+**Tier 2: Follow-up** (if user picks A, C, or D, ask a second AskUserQuestion):
+
+If **Component work** (A):
+> Which component area?
+>
+> A) Module migration — structure, naming, ext.args, meta.yml (9 files)
+> B) Subworkflow restructure — conventions, I/O, naming (7 files)
+> C) nf-test coverage — testing specs for modules, subworkflows, pipelines (3 files)
+> D) All component specs — modules + subworkflows + testing (16 files)
+
+If **Pipeline requirements** (C):
+> Which pipeline area?
+>
+> A) Lint fixes — linting rules, parameter conventions (2 files)
+> B) CI setup — GitHub Actions, test profiles (1 file)
+> C) Documentation — README, usage.md, output.md, module docs (3 files)
+> D) First release prep — all requirements + recommendations (33 files)
+
+If **Load into context** (D):
+> How much to load?
+>
+> A) Just the specs — 56 specification/requirement files (~60K tokens, 6% of 1M)
+> B) Everything — all 172 docs: specs + contributing + developing + running + tools (~275K tokens, 28% of 1M)
 
 **Context budget (measured on Opus 1M):**
 
 | Layer | Files | Tokens | % of 1M |
 |-------|-------|--------|---------|
-| Index only (already loaded) | — | ~15K | 1.5% |
-| + Specifications | 56 | ~60K | 6% |
+| Index + git/review specs (always loaded) | ~6 | ~20K | 2% |
+| + All remaining specifications | ~50 | ~55K | 5.5% |
 | + All remaining docs | 116 | ~200K | 20% |
 | **Total (all docs)** | **172** | **~275K** | **28%** |
 
@@ -268,15 +336,16 @@ Base paths:
 
 | Selection | Spec files to Read | nf-core tool to run |
 |-----------|-------------------|---------------------|
-| 1. Module migration | `specifications/components/modules/*.md` | `nf-core modules lint` |
-| 2. Subworkflow work | `specifications/components/subworkflows/*.md` | `nf-core subworkflows lint` |
-| 3. nf-test coverage | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md` | `nf-core modules test`, `nf-core subworkflows test` |
-| 4. Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` | `nf-core pipelines lint` |
-| 5. CI setup | `*/requirements/ci_testing.md` | (check `.github/workflows/`) |
-| 6. Full compliance audit | All `specifications/**/*.md` recursively | All: `pipelines lint` + `modules lint` + `subworkflows lint` + RO-Crate check |
-| 7. Documentation | `*/requirements/documentation.md` + `*/modules/documentation.md` + `*/subworkflows/documentation.md` | `nf-core pipelines lint` (docs checks) |
-| 8. Git/branch model | `*/requirements/git_branches.md` + `specifications/reviews/*.md` | (check git branches) |
-| 9. First release | All pipeline requirements + recommendations + reviews | All: `pipelines lint` + `modules lint` + `subworkflows lint` |
+| Module migration | `specifications/components/modules/*.md` | `nf-core modules lint` |
+| Subworkflow work | `specifications/components/subworkflows/*.md` | `nf-core subworkflows lint` |
+| nf-test coverage | `*/modules/testing.md` + `*/subworkflows/testing.md` + `*/recommendations/testing.md` | `nf-core modules test`, `nf-core subworkflows test` |
+| All component specs | `specifications/components/**/*.md` | `nf-core modules lint` + `nf-core subworkflows lint` |
+| Lint fixes | `*/requirements/linting.md` + `*/requirements/parameters.md` | `nf-core pipelines lint` |
+| CI + git branches | `*/requirements/ci_testing.md` + `*/requirements/git_branches.md` + `specifications/reviews/*.md` | (check `.github/workflows/` + git branches) |
+| Documentation | `*/requirements/documentation.md` + `*/modules/documentation.md` + `*/subworkflows/documentation.md` | `nf-core pipelines lint` (docs checks) |
+| First release | All pipeline requirements + recommendations + reviews | All: `pipelines lint` + `modules lint` + `subworkflows lint` |
+| Full compliance audit | All `specifications/**/*.md` recursively | All: `pipelines lint` + `modules lint` + `subworkflows lint` + RO-Crate check |
+| All specs | All `specifications/**/*.md` | (depends on task) |
 | 10. CLI reference | `nf-core-tools/*.md` | (reference only) |
 | 11. All specs | All `specifications/**/*.md` | (depends on task) |
 | 12. All docs | All files under docs root | (depends on task) |
@@ -296,6 +365,10 @@ After loading the relevant docs:
 2. Check the pipeline's current state against those rules
 3. Flag any violations or missing requirements
 4. Suggest specific fixes with file paths and code
+
+If anything is unclear about the user's goal, the pipeline's state, or how a
+spec should be interpreted — use AskUserQuestion to clarify before proceeding.
+It's better to ask than to produce a report the user didn't want.
 
 **Never pipe output through head/tail/grep** — always show full output.
 
@@ -435,6 +508,11 @@ and fall back to sequential evaluation for that domain only.
 - Merge positive findings from all agents into one deduplicated list
 - **Checkpoint:** Report pre- and post-deduplication counts in the report
   header, e.g. "Raw findings: 142 | After dedup: 76 | Appendix: 3"
+
+Before producing the report, consider whether the user needs to weigh in on
+anything. If agent findings are surprising, contradictory, or depend on
+context you don't have (e.g., "is this pipeline meant for nf-core submission
+or internal use?"), use AskUserQuestion to clarify before finalizing.
 
 **Step D: Produce the compliance report**
 
