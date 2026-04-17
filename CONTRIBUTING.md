@@ -57,9 +57,28 @@ Read the CLAUDE.md for full constraints. The critical ones:
 - **Keep the installed copy in sync** — if you edit SKILL.md, the installed copy at
   `~/.claude/skills/nfcore-docs/SKILL.md` must match
 
+## Linting
+
+All Python code must pass [ruff](https://docs.astral.sh/ruff/) lint and format checks.
+Configuration is in `ruff.toml` (excludes fixture pipelines).
+
+```bash
+# Check for lint issues
+ruff check tests/
+
+# Check formatting
+ruff format --check tests/
+
+# Auto-fix both
+ruff check tests/ --fix && ruff format tests/
+```
+
+CI enforces both — PRs will fail if ruff reports any issues.
+
 ## Pull requests
 
 - One feature or fix per PR
+- Run `ruff check` and `ruff format` before pushing
 - Update TESTS.md if adding testable behavior
 - Update CLAUDE.md if changing constraints or architecture
 - Test your changes by actually using `/nfcore-docs` in a real session

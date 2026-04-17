@@ -3,8 +3,15 @@
 import re
 import os
 from tests.conftest import (
-    SKILL_MD, TESTS_MD, CLAUDE_MD, CHANGELOG_MD, README_MD, CONTRIBUTING_MD,
-    parse_frontmatter, read_file, count_test_headings,
+    SKILL_MD,
+    TESTS_MD,
+    CLAUDE_MD,
+    CHANGELOG_MD,
+    README_MD,
+    CONTRIBUTING_MD,
+    parse_frontmatter,
+    read_file,
+    count_test_headings,
 )
 
 
@@ -40,9 +47,7 @@ def test_test_count_in_claude_md():
     match = re.search(r"(\d+).test", content)
     assert match, "No test count found in CLAUDE.md"
     stated = int(match.group(1))
-    assert stated == actual, (
-        f"CLAUDE.md says {stated} tests but TESTS.md has {actual}"
-    )
+    assert stated == actual, f"CLAUDE.md says {stated} tests but TESTS.md has {actual}"
 
 
 def test_test_count_in_contributing_md():
@@ -64,9 +69,7 @@ def test_test_count_in_readme_md():
     match = re.search(r"(\d+)\s+tests", content)
     assert match, "No test count found in README.md"
     stated = int(match.group(1))
-    assert stated == actual, (
-        f"README.md says {stated} tests but TESTS.md has {actual}"
-    )
+    assert stated == actual, f"README.md says {stated} tests but TESTS.md has {actual}"
 
 
 def test_skill_name_consistent():
@@ -93,7 +96,7 @@ def test_coverage_map_complete():
     content = read_file(TESTS_MD)
     actual_count = count_test_headings(TESTS_MD)
     # Extract all test numbers from the coverage map (numbers in | cells)
-    map_section = content[:content.index("---\n\n##")]  # everything before first test
+    map_section = content[: content.index("---\n\n##")]  # everything before first test
     referenced = set()
     for match in re.finditer(r"\b(\d+)\b", map_section):
         num = int(match.group(1))
@@ -109,7 +112,7 @@ def test_no_stale_test_references():
     """Coverage Map does not reference test numbers beyond the actual count."""
     content = read_file(TESTS_MD)
     actual_count = count_test_headings(TESTS_MD)
-    map_section = content[:content.index("---\n\n##")]
+    map_section = content[: content.index("---\n\n##")]
     for match in re.finditer(r"\b(\d+)\b", map_section):
         num = int(match.group(1))
         if 1 <= num <= 200:
@@ -122,11 +125,13 @@ def test_required_files_exist():
     """All files listed in CLAUDE.md 'Files' section exist on disk."""
     content = read_file(CLAUDE_MD)
     # Extract filenames from "- `FILE` —" pattern in the Files section
-    files_section = content[content.index("## Files"):content.index("## Development")]
+    files_section = content[content.index("## Files") : content.index("## Development")]
     for match in re.finditer(r"`(\S+\.md)`", files_section):
         filename = match.group(1)
         # Skip paths (contain / before the filename) — only check bare filenames
         if "/" in filename:
             continue
         filepath = os.path.join(os.path.dirname(SKILL_MD), filename)
-        assert os.path.exists(filepath), f"File listed in CLAUDE.md not found: {filename}"
+        assert os.path.exists(filepath), (
+            f"File listed in CLAUDE.md not found: {filename}"
+        )

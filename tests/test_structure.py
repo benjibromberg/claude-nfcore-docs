@@ -15,6 +15,7 @@ def _content():
 
 # --- Required sections ---
 
+
 def test_has_step0():
     assert "## Step 0" in _content()
 
@@ -49,6 +50,7 @@ def test_has_completion_section():
 
 # --- Menu options ---
 
+
 def test_has_tiered_menu():
     c = _content()
     # Tier 1 top-level options
@@ -74,6 +76,7 @@ def test_has_context_budget_table():
 
 # --- Compliance audit structure ---
 
+
 def test_has_5_agent_domains():
     c = _content()
     assert "Pipeline requirements" in c
@@ -98,7 +101,13 @@ def test_has_completion_statuses():
 def test_has_never_rules():
     c = _content()
     assert "NEVER" in c
-    never_count = len(re.findall(r"^- .+$", c[c.index("**NEVER:**"):c.index("## Persistence")], re.MULTILINE))
+    never_count = len(
+        re.findall(
+            r"^- .+$",
+            c[c.index("**NEVER:**") : c.index("## Persistence")],
+            re.MULTILINE,
+        )
+    )
     assert never_count >= 8, f"Expected at least 8 NEVER rules, found {never_count}"
 
 
@@ -107,6 +116,7 @@ def test_has_accuracy_disclaimer():
 
 
 # --- v1.0.1 guardrails ---
+
 
 def test_has_general_ask_principle():
     c = _content()
@@ -138,7 +148,10 @@ def test_has_agent_report_save_before_consolidation():
 
 
 def test_report_organized_by_spec_directory():
-    assert "primary organization" in _content().lower() or "spec directory" in _content().lower()
+    assert (
+        "primary organization" in _content().lower()
+        or "spec directory" in _content().lower()
+    )
 
 
 def test_has_dedup_checkpoint():
@@ -157,6 +170,7 @@ def test_has_tool_crash_flow():
 
 
 # --- Embedded scripts ---
+
 
 def test_bash_block_present():
     assert "```bash" in _content()

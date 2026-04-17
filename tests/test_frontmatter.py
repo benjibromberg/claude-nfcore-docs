@@ -28,6 +28,7 @@ def test_description_field():
     # description uses multiline `|` syntax which our simple parser skips the value for.
     # Just verify the key exists in the raw frontmatter text.
     from tests.conftest import read_file
+
     content = read_file(SKILL_MD)
     assert "description:" in content, "Missing description field in frontmatter"
 

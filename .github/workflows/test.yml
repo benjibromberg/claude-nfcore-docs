@@ -17,6 +17,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Lint (ruff)
+        uses: astral-sh/ruff-action@v4
+
+      - name: Format check (ruff)
+        uses: astral-sh/ruff-action@v4
+        with:
+          args: "format --check"
+
       - name: Install pytest
         run: pip install pytest
 

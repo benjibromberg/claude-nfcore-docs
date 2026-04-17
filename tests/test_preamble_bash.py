@@ -2,8 +2,6 @@
 
 import os
 import subprocess
-import tempfile
-from tests.conftest import SKILL_MD, extract_first_bash_block
 
 
 def _run_bash(script, cwd=None, env=None):
@@ -11,8 +9,11 @@ def _run_bash(script, cwd=None, env=None):
     merged_env = {**os.environ, **(env or {})}
     result = subprocess.run(
         ["bash", "-c", script],
-        capture_output=True, text=True, timeout=30,
-        cwd=cwd, env=merged_env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        cwd=cwd,
+        env=merged_env,
     )
     return result.stdout, result.stderr, result.returncode
 
@@ -57,6 +58,7 @@ command -v gh >/dev/null 2>&1 && echo "gh: found" || echo "gh: not found"
 
 # --- CLAUDE_MD_REF tests ---
 
+
 def test_claude_md_ref_no_file(tmp_path):
     stdout, _, _ = _run_bash(_claude_md_ref_script(), cwd=str(tmp_path))
     assert "CLAUDE_MD_REF: no_file" in stdout
@@ -75,6 +77,7 @@ def test_claude_md_ref_yes(tmp_path):
 
 
 # --- Learnings tests ---
+
 
 def test_learnings_loaded(tmp_path):
     nfcore_dir = tmp_path / ".nfcore-docs"
@@ -101,6 +104,7 @@ def test_learnings_missing_file(tmp_path):
 
 
 # --- Dependency check tests ---
+
 
 def test_dependency_check_git():
     stdout, _, _ = _run_bash(_dep_check_script())

@@ -3,8 +3,13 @@
 import os
 import pytest
 from tests.conftest import (
-    CACHE_DIR, CACHE_EXISTS, DOCS_ROOT, SPEC_ROOT, API_ROOT,
-    find_spec_files, find_all_doc_files, read_file,
+    CACHE_DIR,
+    CACHE_EXISTS,
+    DOCS_ROOT,
+    SPEC_ROOT,
+    find_spec_files,
+    find_all_doc_files,
+    read_file,
 )
 
 pytestmark = pytest.mark.skipif(
@@ -68,6 +73,7 @@ def test_spec_files_have_frontmatter():
 
 def test_spec_files_have_titles():
     import re
+
     for spec in find_spec_files():
         content = read_file(spec)
         assert re.search(r"^title:", content, re.MULTILINE), (
